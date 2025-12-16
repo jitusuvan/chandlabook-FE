@@ -1,0 +1,12 @@
+{
+  "api": {
+    "host": "http://10.163.117.74:8000",
+    "token": "/auth/token/",
+    "refreshToken": "/auth/token/refresh/",
+    "passwordReset": "/api/v1/passwordReset/",
+    "changeMyPassword": "/api/v1/changeMyPassword/",
+    "pass-reset": "/auth/pass-reset/",
+    "sendOtp": "/api/v1/sendOtp/",
+    "verifyOtp": "/api/v1/verifyOtp/"
+  }
+}
