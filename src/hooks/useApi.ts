@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import axios from "axios";
 
-import global from "../../config/Global.json";
+import global from "../config/Global.json";
 import AuthContext from "../contexts/AuthContext";
 
 const useApi = () => {

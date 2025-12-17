@@ -7,6 +7,7 @@
     "changeMyPassword": "/api/v1/changeMyPassword/",
     "pass-reset": "/auth/pass-reset/",
     "sendOtp": "/api/v1/sendOtp/",
-    "verifyOtp": "/api/v1/verifyOtp/"
+    "verifyOtp": "/api/v1/verifyOtp/",
+    "user": "/api/v1/user/"
   }
 }

@@ -7,6 +7,8 @@ import Signup from './pages/Signup';
 import PublicRoute from './components/PublicRoute';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
+import AddRecord from './pages/AddRecord';
+import ProtectedRoute from './components/ProtectedRoute';
 // import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -16,6 +18,7 @@ function App() {
       <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
       <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
       <Route path="/dashboard" element={<PublicRoute><Dashboard /></PublicRoute>} />
+      <Route path="/add-record" element={<ProtectedRoute><AddRecord /></ProtectedRoute>} />
       {/* Add more routes here as needed */}
     </Routes>
   );

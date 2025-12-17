@@ -8,7 +8,7 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate, useLocation, matchPath } from "react-router-dom";
-import global from "../../config/Global.json";
+import global from "../config/Global.json";
 
 interface AuthToken {
   access: string;
