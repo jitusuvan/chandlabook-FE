@@ -8,6 +8,10 @@
     "pass-reset": "/auth/pass-reset/",
     "sendOtp": "/api/v1/sendOtp/",
     "verifyOtp": "/api/v1/verifyOtp/",
-    "user": "/api/v1/user/"
+    "user": "/api/v1/user/",
+    "userProfile":"/api/v1/userProfile/",
+    "createUser":"/api/v1/createUser/",
+    "guest":"/api/v1/guest/",
+    "guestRecord":"/api/v1/guestRecord/"
   }
 }

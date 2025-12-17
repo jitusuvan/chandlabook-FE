@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import type { FormEvent } from "react";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 import AppLayout from "../layouts/AppLayout";
-import useApi from "../hooks/useApi";
+import global from "../config/Global.json";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { Post } = useApi();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,17 +22,17 @@ const Signup = () => {
       return;
     }
 
-    const payload = {
-      username: formData.get("email"), // 👈 email ko username bana do
-      email: formData.get("email"),
-      first_name: formData.get("first_name"),
-      last_name: formData.get("last_name"),
-      password,
-      // groups
-    };
+   const payload = {
+  username: formData.get("email"),
+  email: formData.get("email"),
+  first_name: formData.get("first_name"),
+  last_name: formData.get("last_name"),
+  password,
+  groups: [],  // sending empty array here
+};
     try {
-      // 🔥 ONLY "user" API (from Global.json)
-      await Post("user", payload);
+      const apiUrl = global.api.host + global.api.createUser;
+      await axios.post(apiUrl, payload);
 
       toast.success("Account created successfully!");
       navigate("/login");
@@ -100,6 +100,19 @@ const Signup = () => {
           Create Account
         </button>
       </form>
+
+      <div className="text-center">
+        <small className="text-muted">
+          Already have an account?{" "}
+          <span 
+            className="text-danger" 
+            style={{ cursor: "pointer", textDecoration: "underline" }}
+            onClick={() => navigate("/login")}
+          >
+            Sign in
+          </span>
+        </small>
+      </div>
     </AppLayout>
   );
 };

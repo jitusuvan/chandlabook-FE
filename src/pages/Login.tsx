@@ -1,10 +1,12 @@
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import type { FormEvent } from "react";
 import AppLayout from "../layouts/AppLayout";
 import AuthContext from "../contexts/AuthContext";
 
 const Login = () => {
   const { loginUser, loading } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     loginUser(e); // 👈 AuthContext handles everything
@@ -50,12 +52,25 @@ const Login = () => {
         {/* Submit */}
         <button
           type="submit"
-          className="btn btn-danger w-100 btn-lg"
+          className="btn btn-danger w-100 btn-lg mb-3"
           disabled={loading}
         >
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
+
+      <div className="text-center">
+        <small className="text-muted">
+          Don't have an account?{" "}
+          <span 
+            className="text-danger" 
+            style={{ cursor: "pointer", textDecoration: "underline" }}
+            onClick={() => navigate("/signup")}
+          >
+            Create account
+          </span>
+        </small>
+      </div>
     </AppLayout>
   );
 };

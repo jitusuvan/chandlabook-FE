@@ -165,29 +165,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       const publicRoutes = [
-        "/",
-        "/about-us",
-        "/all-programs",
-        "/colleges-schools",
-        "/faculty",
         "/login",
         "/signup",
-        "/auth",
-        "/agent-auth",
-        "/unified-auth",
-        "/register",
-        "/course-college",
-        "/apply-now",
-        "/unauthorized",
-        "/forget-password",
-        "/reset-link-sent",
-        "/news-highlights",
       ];
 
-      const isPublicRoute =
-        publicRoutes.some((route) =>
-          matchPath({ path: route }, location.pathname)
-        ) || !!matchPath({ path: "/news-highlights/:id" }, location.pathname);
+      const isPublicRoute = publicRoutes.some((route) =>
+        matchPath({ path: route }, location.pathname)
+      );
 
       const storedToken = localStorage.getItem("authToken");
 
@@ -204,17 +188,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
             setIsAuthenticated(true);
           } else {
+            console.log("Token expired, attempting refresh...");
             const refreshed = await refreshTokens(tokenData.refresh);
             if (!refreshed) {
+              console.log("Refresh failed");
               if (!isPublicRoute) {
                 logOutUser("Session expired.");
               } else {
                 localStorage.removeItem("authToken");
               }
+            } else {
+              console.log("Token refreshed successfully");
             }
           }
-        } catch {
+        } catch (error) {
+          console.error("Error parsing token:", error);
           localStorage.removeItem("authToken");
+          if (!isPublicRoute) {
+            logOutUser();
+          }
         }
       } else if (!isPublicRoute) {
         logOutUser();
@@ -223,7 +215,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(false);
     };
 
-    if (loading) initializeAuth();
+    initializeAuth();
 
     const interval = setInterval(async () => {
       const stored = localStorage.getItem("authToken");
@@ -249,7 +241,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [loading, location.pathname]);
+  }, []);
 
   return (
     <AuthContext.Provider

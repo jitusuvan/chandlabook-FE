@@ -1,69 +1,68 @@
+import { useNavigate } from "react-router-dom";
+
 type AppLayoutProps = {
   title: string;
   subtitle?: string;
   showBack?: boolean;
+  showProfile?: boolean;   // ✅ NEW
   children: React.ReactNode;
 };
-const AppLayout = ({ title, subtitle, showBack, children }: AppLayoutProps) => {
+
+const AppLayout = ({ title, subtitle, showBack, showProfile, children }: AppLayoutProps) => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-vh-100 bg-light d-flex justify-content-center align-items-start pt-5">
       <div
         className="w-100 bg-white shadow-sm"
-        style={{
-          maxWidth: 430,
-          borderRadius: 24,
-          overflow: 'hidden', // 🔴 important
-        }}
+        style={{ maxWidth: 430, borderRadius: 24, overflow: "hidden" }}
       >
-        {/* 🔴 RED HEADER */}
+        {/* RED HEADER */}
         <div
           className="bg-danger text-white position-relative d-flex flex-column justify-content-center"
-          style={{
-            height: 220,                 // 🔥 height badhai
-            borderBottomLeftRadius: 24,  // 🔥 bottom curve
-            borderBottomRightRadius: 24,
-          }}
+          style={{ height: 220, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}
         >
           {showBack && (
-            <span className="position-absolute start-0 top-50 translate-middle-y ms-3 fs-4">
+            <span
+              className="position-absolute start-0 top-50 translate-middle-y ms-3 fs-4"
+              onClick={() => navigate(-1)}
+              style={{ cursor: "pointer" }}
+            >
               ←
             </span>
           )}
 
-          <div className="text-center">
+          {/* ✅ PROFILE ICON (only if showProfile=true) */}
+          {showProfile && (
             <div
-              className="mx-auto mb-3"
+              className="position-absolute end-0 top-0 mt-3 me-3"
+              onClick={() => navigate("/profile")}
               style={{
-                width: 60,
-                height: 60,
-                borderRadius: '50%',
-                background: '#9b0000',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                background: "#ffffff33",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                fontWeight: "bold",
               }}
             >
-              <span className="bg-white rounded-circle" style={{ width: 8, height: 8 }} />
-              <span className="border border-white rounded-circle" style={{ width: 10, height: 10 }} />
-              <span className="border border-white rounded-circle" style={{ width: 12, height: 12 }} />
+              J
             </div>
+          )}
 
+          <div className="text-center">
             <h4 className="fw-bold mb-1">{title}</h4>
-            {subtitle && (
-              <p className="text-white-50 mb-0">{subtitle}</p>
-            )}
+            {subtitle && <p className="text-white-50 mb-0">{subtitle}</p>}
           </div>
         </div>
 
-        {/* ⚪ CONTENT */}
-        <div className="p-4 px-3 px-md-4">
-          {children}
-        </div>
+        <div className="p-4 px-3 px-md-4">{children}</div>
       </div>
     </div>
   );
 };
-
 
 export default AppLayout;

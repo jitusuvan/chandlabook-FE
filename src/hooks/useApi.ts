@@ -128,8 +128,15 @@ const useApi = () => {
   const Get = async (api: string, idOrPath?: string | number) => {
     let _api = getAPI(api).includes("undefined") ? api : getAPI(api);
 
-    // build full URL with trailing slash
-    const url = idOrPath ? `${_api}${idOrPath}/` : _api;
+    // build full URL - add trailing slash only if not a query string
+    let url: string;
+    if (idOrPath) {
+      const pathStr = String(idOrPath);
+      // If it starts with ?, it's a query string, don't add trailing slash
+      url = pathStr.startsWith("?") ? `${_api}${pathStr}` : `${_api}${pathStr}/`;
+    } else {
+      url = _api;
+    }
 
     try {
       const response = await axios.get(url, { headers });
