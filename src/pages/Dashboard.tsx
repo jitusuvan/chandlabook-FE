@@ -38,17 +38,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="row g-3">
-        <div className="col-12">
-          <div 
-            className="card p-3 shadow-sm text-center" 
-            onClick={() => navigate("/profile")}
-            style={{ cursor: "pointer" }}
-          >
-            Profile
-          </div>
-        </div>
-      </div>
+      
 
     </AppLayout>
   );

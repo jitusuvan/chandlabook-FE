@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import AppLayout from "../layouts/AppLayout";
 import useApi from "../hooks/useApi";
+import GuestList from "../pages/GuestList";
+import GuestRecords from "../pages/GuestRecords";
 
 interface Guest {
   id: string;
@@ -9,152 +11,95 @@ interface Guest {
   surname: string;
   mobile_no: string;
   city: string;
+  guest_name?: string;
 }
 
-interface GuestRecord {
-  id: string;
-  date: string;
-  amount: string;
-  select: string;
-  event: string;
-  bride_groom: string | null;
-  guest: string;
+
+
+interface GuestSummary {
+  aavel_total: number;
+  mukel_total: number;
+  difference: number;
 }
 
 const GuestHistory = () => {
-  const { Get } = useApi();
-  const [guests, setGuests] = useState<Guest[]>([]);
+  const { GetPaginatedData } = useApi();
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
-  const [records, setRecords] = useState<GuestRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingRecords, setLoadingRecords] = useState(false);
+  const [summary, setSummary] = useState<GuestSummary | null>(null);
 
-  useEffect(() => {
-    const fetchGuests = async () => {
-      try {
-        const data = await Get("guest");
-        setGuests(data.results || data);
-      } catch (error) {
-        console.error("Failed to fetch guests", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchGuests();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
 
   const handleSelectGuest = async (guest: Guest) => {
     setSelectedGuest(guest);
-    setLoadingRecords(true);
     try {
-      const data = await Get("guestRecord", `?guest=${guest.id}`);
-      setRecords(data.results || data);
+      const result = await GetPaginatedData("guestRecord", { 
+        queryParams: { guest: guest.id } 
+      });
+      
+      if (result.data && result.data.length > 0) {
+        const firstResult = result.data[0];
+        if (firstResult.aavel_total !== undefined) {
+          setSummary({
+            aavel_total: firstResult.aavel_total,
+            mukel_total: firstResult.mukel_total,
+            difference: firstResult.difference
+          });
+        }
+        
+        // Update guest with guest_name if available
+        const recordWithGuestName = result.data.find((record: any) => record.guest_name);
+        if (recordWithGuestName && recordWithGuestName.guest_name) {
+          setSelectedGuest(prev => prev ? {...prev, guest_name: recordWithGuestName.guest_name} : null);
+        }
+      }
     } catch (error) {
       console.error("Failed to fetch records", error);
-    } finally {
-      setLoadingRecords(false);
     }
   };
 
-  if (loading) {
-    return (
-      <AppLayout title="History" showBack>
-        <div className="text-center py-5">Loading...</div>
-      </AppLayout>
-    );
-  }
 
-  if (guests.length === 0 && !loading) {
-    return (
-      <AppLayout title="History" showBack>
-        <div className="text-center py-5 text-muted">No guests found</div>
-      </AppLayout>
-    );
-  }
+
+
 
   return (
-    <AppLayout title="History" showBack>
+    <AppLayout 
+      title={selectedGuest ? (selectedGuest.guest_name || `${selectedGuest.first_name}  ${selectedGuest.surname}`) : "History"}
+      summaryCards={summary ? (
+        <div className="row g-2 mt-3 mx-1">
+          <div className="col-4">
+            <div className="card text-center bg-light border-0 shadow-sm">
+              <div className="card-body p-2 py-3">
+                <small className="text-muted d-block mb-1">Aavel</small>
+                <div className="fw-bold text-success fs-6">₹{summary.aavel_total}</div>
+              </div>
+            </div>
+          </div>
+          <div className="col-4">
+            <div className="card text-center bg-light border-0 shadow-sm">
+              <div className="card-body p-2 py-3">
+                <small className="text-muted d-block mb-1">Mukel</small>
+                <div className="fw-bold text-danger fs-6">₹{summary.mukel_total}</div>
+              </div>
+            </div>
+          </div>
+          <div className="col-4">
+            <div className="card text-center bg-light border-0 shadow-sm">
+              <div className="card-body p-2 py-3">
+                <small className="text-muted d-block mb-1">Difference</small>
+                <div className="fw-bold text-primary fs-6">₹{summary.difference}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : undefined}
+      showBack
+    >
       {!selectedGuest ? (
-        <>
-          <input
-            className="form-control mb-3"
-            placeholder="Search by name..."
-          />
-
-          {guests.map((guest) => (
-            <div
-              key={guest.id}
-              className="border rounded p-3 mb-3"
-              style={{ background: "#fff", cursor: "pointer" }}
-              onClick={() => handleSelectGuest(guest)}
-            >
-              <h6 className="mb-1 fw-bold">
-                {guest.first_name} {guest.last_name} {guest.surname}
-              </h6>
-              <small className="text-muted">{guest.city} • {guest.mobile_no}</small>
-            </div>
-          ))}
-        </>
+        <GuestList onSelectGuest={handleSelectGuest} />
       ) : (
-        <>
-          <div className="border rounded p-3 mb-3" style={{ background: "#fff" }}>
-            <div className="d-flex justify-content-between align-items-start">
-              <div>
-                <h6 className="fw-bold mb-1">
-                  {selectedGuest.first_name} {selectedGuest.last_name} {selectedGuest.surname}
-                </h6>
-                <small className="text-muted">{selectedGuest.city} • {selectedGuest.mobile_no}</small>
-              </div>
-              <button
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => {
-                  setSelectedGuest(null);
-                  setRecords([]);
-                }}
-              >
-                Back
-              </button>
-            </div>
-          </div>
-
-          {loadingRecords ? (
-            <div className="text-center py-5">Loading records...</div>
-          ) : records.length === 0 ? (
-            <div className="text-center py-5 text-muted">No records found</div>
-          ) : (
-            records.map((record) => (
-        <div
-          key={record.id}
-          className="border rounded p-3 mb-3"
-          style={{ background: "#fff" }}
-        >
-          <div className="d-flex justify-content-between align-items-start mb-2">
-            <div>
-              <h6 className="mb-0 fw-bold">₹{record.amount}</h6>
-              <small className="text-muted">{new Date(record.date).toLocaleDateString()}</small>
-            </div>
-            <span className={`badge ${record.select === "aavel" ? "bg-success" : "bg-danger"}`}>
-              {record.select === "aavel" ? "Aavel" : "Mukel"}
-            </span>
-          </div>
-
-          <div className="mb-2">
-            <small>
-              <strong>Event:</strong> {record.event === "chandlo" ? "Chandlo" : "Marriage"}
-              {record.bride_groom && ` - ${record.bride_groom}`}
-            </small>
-          </div>
-
-          <div className="d-flex gap-2">
-            <button className="btn btn-outline-primary btn-sm">Edit</button>
-            <button className="btn btn-outline-danger btn-sm">Delete</button>
-              </div>
-            </div>
-            ))
-          )}
-        </>
+        <GuestRecords guest={selectedGuest} />
       )}
+
     </AppLayout>
   );
 };

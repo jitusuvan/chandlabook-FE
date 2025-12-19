@@ -1,24 +1,44 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import type { FormEvent } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 
 import AppLayout from "../layouts/AppLayout";
 import global from "../config/Global.json";
+import { validateForm, commonRules } from "../utils/validation";
+import type { ValidationErrors } from "../utils/validation";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState<ValidationErrors>({});
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrors({});
 
     const formData = new FormData(e.currentTarget);
-
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirm_password") as string;
 
+    const validationRules = {
+      first_name: commonRules.name,
+      last_name: commonRules.name,
+      email: commonRules.email,
+      password: commonRules.password
+    };
+
+    const validationErrors = validateForm(formData, validationRules);
+
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
+      validationErrors.confirm_password = "Passwords do not match";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      toast.error("Please fix the errors below");
       return;
     }
 
@@ -31,7 +51,7 @@ const Signup = () => {
   groups: [],  // sending empty array here
 };
     try {
-      const apiUrl = global.api.host + global.api.createUser;
+      const apiUrl = global.api.host + global.api.user;
       await axios.post(apiUrl, payload);
 
       toast.success("Account created successfully!");
@@ -52,18 +72,22 @@ const Signup = () => {
           <label className="form-label">First Name</label>
           <input
             name="first_name"
-            className="form-control form-control-lg"
+            className={`form-control form-control-lg ${errors.first_name ? 'is-invalid' : ''}`}
+            maxLength={50}
             required
           />
+          {errors.first_name && <div className="invalid-feedback">{errors.first_name}</div>}
         </div>
 
         <div className="mb-3">
           <label className="form-label">Last Name</label>
           <input
             name="last_name"
-            className="form-control form-control-lg"
+            className={`form-control form-control-lg ${errors.last_name ? 'is-invalid' : ''}`}
+            maxLength={50}
             required
           />
+          {errors.last_name && <div className="invalid-feedback">{errors.last_name}</div>}
         </div>
 
         <div className="mb-3">
@@ -71,29 +95,53 @@ const Signup = () => {
           <input
             type="email"
             name="email"
-            className="form-control form-control-lg"
+            className={`form-control form-control-lg ${errors.email ? 'is-invalid' : ''}`}
+            maxLength={50}
             required
           />
+          {errors.email && <div className="invalid-feedback">{errors.email}</div>}
         </div>
 
         <div className="mb-3">
           <label className="form-label">Password</label>
-          <input
-            type="password"
-            name="password"
-            className="form-control form-control-lg"
-            required
-          />
+          <div className="position-relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              className={`form-control form-control-lg pe-5 ${errors.password ? 'is-invalid' : ''}`}
+              maxLength={30}
+              required
+            />
+            <button
+              type="button"
+              className="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0 bg-transparent"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+            </button>
+          </div>
+          {errors.password && <div className="invalid-feedback d-block">{errors.password}</div>}
         </div>
 
         <div className="mb-4">
           <label className="form-label">Confirm Password</label>
-          <input
-            type="password"
-            name="confirm_password"
-            className="form-control form-control-lg"
-            required
-          />
+          <div className="position-relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirm_password"
+              className={`form-control form-control-lg pe-5 ${errors.confirm_password ? 'is-invalid' : ''}`}
+              maxLength={30}
+              required
+            />
+            <button
+              type="button"
+              className="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0 bg-transparent"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <i className={`bi ${showConfirmPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+            </button>
+          </div>
+          {errors.confirm_password && <div className="invalid-feedback d-block">{errors.confirm_password}</div>}
         </div>
 
         <button type="submit" className="btn btn-danger w-100 btn-lg mb-3">

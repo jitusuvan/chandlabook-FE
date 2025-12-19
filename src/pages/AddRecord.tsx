@@ -2,6 +2,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import AppLayout from "../layouts/AppLayout";
 import useApi from "../hooks/useApi";
+import { validateForm, commonRules } from "../utils/validation";
+import type { ValidationErrors } from "../utils/validation";
 
 interface Guest {
   id: string;
@@ -25,6 +27,7 @@ const AddRecord = () => {
     mobile_no: "",
     city: "",
   });
+  const [errors, setErrors] = useState<ValidationErrors>({});
   const [records, setRecords] = useState([
     {
       date: "",
@@ -80,14 +83,56 @@ const AddRecord = () => {
   };
 
   const handleSubmit = async () => {
+    setErrors({});
+
+    // Validate guest data if creating new guest
+    if (!selectedGuest) {
+      const guestFormData = new FormData();
+      Object.entries(guestData).forEach(([key, value]) => {
+        guestFormData.append(key, value);
+      });
+
+      const guestValidationRules = {
+        first_name: commonRules.name,
+        last_name: commonRules.name,
+        surname: commonRules.name,
+        mobile_no: commonRules.phone,
+        city: commonRules.city
+      };
+
+      const guestErrors = validateForm(guestFormData, guestValidationRules);
+      if (Object.keys(guestErrors).length > 0) {
+        setErrors(guestErrors);
+        toast.error("Please fix guest information errors");
+        return;
+      }
+    }
+
+    // Validate records
+    const recordErrors: ValidationErrors = {};
+    records.forEach((record, idx) => {
+      if (!record.date) recordErrors[`date_${idx}`] = "Date is required";
+      if (!record.amount) recordErrors[`amount_${idx}`] = "Amount is required";
+      else if (!/^\d+(\.\d{1,2})?$/.test(record.amount) || parseFloat(record.amount) <= 0) {
+        recordErrors[`amount_${idx}`] = "Enter valid amount";
+      }
+      if (record.event === "marriage" && !record.bride_groom.trim()) {
+        recordErrors[`bride_groom_${idx}`] = "Bride/Groom name is required";
+      }
+    });
+
+    if (Object.keys(recordErrors).length > 0) {
+      setErrors(recordErrors);
+      toast.error("Please fix record errors");
+      return;
+    }
+
     try {
       let guestId: string;
 
       if (selectedGuest) {
-        // Use existing guest
         guestId = selectedGuest.id;
       } else {
-        // Create new guest
         const guestResponse = await Post("guest", guestData);
         guestId = guestResponse.data.id;
       }
@@ -113,6 +158,7 @@ const AddRecord = () => {
       setSearchQuery("");
       setGuestData({ first_name: "", last_name: "", surname: "", mobile_no: "", city: "" });
       setRecords([{ date: "", amount: "", select: "mukel", event: "chandlo", bride_groom: "" }]);
+      setErrors({});
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to create guest/record");
     }
@@ -136,21 +182,27 @@ const AddRecord = () => {
           </div>
 
           {/* Search Results */}
-          {searchResults.length > 0 && (
+          {searchQuery.trim().length >= 2 && (
             <div className="border rounded mt-2" style={{ maxHeight: "300px", overflowY: "auto" }}>
-              {searchResults.map((guest) => (
-                <div
-                  key={guest.id}
-                  className="p-3 border-bottom"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => handleSelectGuest(guest)}
-                >
-                  <div className="fw-bold">
-                    {guest.first_name} {guest.last_name} {guest.surname}
+              {searchResults.length > 0 ? (
+                searchResults.map((guest) => (
+                  <div
+                    key={guest.id}
+                    className="p-3 border-bottom"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleSelectGuest(guest)}
+                  >
+                    <div className="fw-bold">
+                      {guest.first_name} {guest.last_name} {guest.surname}
+                    </div>
+                    <small className="text-muted">{guest.city} • {guest.mobile_no}</small>
                   </div>
-                  <small className="text-muted">{guest.city} • {guest.mobile_no}</small>
+                ))
+              ) : (
+                <div className="p-3 text-center text-muted">
+                  No guests found for "{searchQuery}"
                 </div>
-              ))}
+              )}
             </div>
           )}
 
@@ -287,43 +339,53 @@ const AddRecord = () => {
           <div className="row g-3 mb-3">
             <div className="col-6">
               <input
-                className="form-control form-control-lg"
+                className={`form-control form-control-lg ${errors.first_name ? 'is-invalid' : ''}`}
                 placeholder="First name"
+                maxLength={50}
                 value={guestData.first_name}
                 onChange={(e) => setGuestData({ ...guestData, first_name: e.target.value })}
               />
+              {errors.first_name && <div className="invalid-feedback">{errors.first_name}</div>}
             </div>
             <div className="col-6">
               <input
-                className="form-control form-control-lg"
+                className={`form-control form-control-lg ${errors.last_name ? 'is-invalid' : ''}`}
                 placeholder="Last name"
+                maxLength={50}
                 value={guestData.last_name}
                 onChange={(e) => setGuestData({ ...guestData, last_name: e.target.value })}
               />
+              {errors.last_name && <div className="invalid-feedback">{errors.last_name}</div>}
             </div>
             <div className="col-6">
               <input
-                className="form-control form-control-lg"
+                className={`form-control form-control-lg ${errors.surname ? 'is-invalid' : ''}`}
                 placeholder="Surname"
+                maxLength={50}
                 value={guestData.surname}
                 onChange={(e) => setGuestData({ ...guestData, surname: e.target.value })}
               />
+              {errors.surname && <div className="invalid-feedback">{errors.surname}</div>}
             </div>
             <div className="col-6">
               <input
-                className="form-control form-control-lg"
+                className={`form-control form-control-lg ${errors.mobile_no ? 'is-invalid' : ''}`}
                 placeholder="Mobile number"
+                maxLength={15}
                 value={guestData.mobile_no}
                 onChange={(e) => setGuestData({ ...guestData, mobile_no: e.target.value })}
               />
+              {errors.mobile_no && <div className="invalid-feedback">{errors.mobile_no}</div>}
             </div>
             <div className="col-6">
               <input
-                className="form-control form-control-lg"
+                className={`form-control form-control-lg ${errors.city ? 'is-invalid' : ''}`}
                 placeholder="City"
+                maxLength={50}
                 value={guestData.city}
                 onChange={(e) => setGuestData({ ...guestData, city: e.target.value })}
               />
+              {errors.city && <div className="invalid-feedback">{errors.city}</div>}
             </div>
           </div>
 
@@ -349,19 +411,24 @@ const AddRecord = () => {
                 <div className="col-6">
                   <input
                     type="date"
-                    className="form-control form-control-lg"
+                    className={`form-control form-control-lg ${errors[`date_${idx}`] ? 'is-invalid' : ''}`}
                     value={record.date}
                     onChange={(e) => updateRecord(idx, "date", e.target.value)}
                   />
+                  {errors[`date_${idx}`] && <div className="invalid-feedback">{errors[`date_${idx}`]}</div>}
                 </div>
                 <div className="col-6">
                   <input
                     type="number"
-                    className="form-control form-control-lg"
+                    className={`form-control form-control-lg ${errors[`amount_${idx}`] ? 'is-invalid' : ''}`}
                     placeholder="Enter amount"
+                    min="1"
+                    max="1000000"
+                    step="0.01"
                     value={record.amount}
                     onChange={(e) => updateRecord(idx, "amount", e.target.value)}
                   />
+                  {errors[`amount_${idx}`] && <div className="invalid-feedback">{errors[`amount_${idx}`]}</div>}
                 </div>
               </div>
 
@@ -391,11 +458,13 @@ const AddRecord = () => {
               {record.event === "marriage" && (
                 <div className="mb-3">
                   <input
-                    className="form-control form-control-lg"
+                    className={`form-control form-control-lg ${errors[`bride_groom_${idx}`] ? 'is-invalid' : ''}`}
                     placeholder="Bride/Groom name"
+                    maxLength={100}
                     value={record.bride_groom}
                     onChange={(e) => updateRecord(idx, "bride_groom", e.target.value)}
                   />
+                  {errors[`bride_groom_${idx}`] && <div className="invalid-feedback">{errors[`bride_groom_${idx}`]}</div>}
                 </div>
               )}
             </div>
