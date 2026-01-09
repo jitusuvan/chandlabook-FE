@@ -1,6 +1,6 @@
 {
   "api": {
-    "host": "http://10.148.46.74:8000",
+    "host": "http://10.245.180.74:8000",
     "token": "/auth/token/",
     "refreshToken": "/auth/token/refresh/",
     "passwordReset": "/api/v1/passwordReset/",
@@ -12,6 +12,7 @@
     "userProfile":"/api/v1/userProfile/",
     "createUser":"/api/v1/createUser/",
     "guest":"/api/v1/guest/",
-    "guestRecord":"/api/v1/guestRecord/"
+    "guestRecord":"/api/v1/guestRecord/",
+    "events":"/api/v1/events/"
   }
 }

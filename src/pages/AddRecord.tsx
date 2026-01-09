@@ -13,6 +13,16 @@ interface Guest {
   mobile_no: string;
   city: string;
 }
+interface Event {
+  id: string;
+  name: string;
+  date: string;
+  event_type: string;
+  select_type: string;
+  bride_groom_name?: string;
+  total_amount?: number;
+}
+
 
 const AddRecord = () => {
   const { Post, GetPaginatedData } = useApi();
@@ -37,6 +47,31 @@ const AddRecord = () => {
       bride_groom: "",
     },
   ]);
+const [events, setEvents] = useState<Event[]>([]);
+const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+const [showEventSelection, setShowEventSelection] = useState(false);
+
+const fetchEvents = async () => {
+  try {
+    const result = await GetPaginatedData("events");
+    setEvents(result.data);
+  } catch (error) {
+    console.error("Failed to fetch events", error);
+  }
+};
+
+const handleSelectEvent = (event: Event) => {
+  setSelectedEvent(event);
+  // Auto-fill record data from event
+  setRecords([{
+    date: event.date,
+    amount: "",
+    select: event.select_type,
+    event: event.event_type,
+    bride_groom: event.bride_groom_name || "",
+  }]);
+  setShowEventSelection(false);
+};
 
   const addRecord = () => {
     setRecords([
@@ -141,13 +176,23 @@ const AddRecord = () => {
       await Promise.all(
         records.map((record) => {
           const payload = {
-            guest: guestId,
-            date: record.date,
-            amount: record.amount,
-            select: record.select,
-            event: record.event,
-            ...(record.event === "marriage" && { bride_groom: record.bride_groom }),
-          };
+  guest: guestId,
+  event: selectedEvent?.id || null, // Add event FK
+  date: record.date,
+  amount: record.amount,
+  select: record.select,
+  event_type: record.event, // Changed from 'event' to 'event_type'
+  ...(record.event === "marriage" && { bride_groom: record.bride_groom }),
+};
+
+          // const payload = {
+          //   guest: guestId,
+          //   date: record.date,
+          //   amount: record.amount,
+          //   select: record.select,
+          //   event: record.event,
+          //   ...(record.event === "marriage" && { bride_groom: record.bride_groom }),
+          // };
           return Post("guestRecord", payload);
         })
       );
@@ -388,6 +433,91 @@ const AddRecord = () => {
               {errors.city && <div className="invalid-feedback">{errors.city}</div>}
             </div>
           </div>
+          {/* Event Selection Button */}
+          {!selectedEvent && (
+            <button 
+              className="btn btn-outline-primary mb-3"
+              onClick={() => {
+                fetchEvents();
+                setShowEventSelection(true);
+              }}
+            >
+              📅 Select Event (Auto-fill Details)
+            </button>
+          )}
+
+          {/* Event Selection Modal */}
+          {showEventSelection && (
+            <div className="border rounded p-3 mb-3" style={{ background: "#f8f9fa" }}>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h6 className="fw-bold mb-0">Select Event</h6>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => setShowEventSelection(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+              
+              {events.length === 0 ? (
+                <div className="text-center py-3">
+                  <div className="text-muted mb-2">No events available</div>
+                  <button
+                    className="btn btn-outline-danger btn-sm"
+                    onClick={() => window.open('/create-event', '_blank')}
+                  >
+                    Create Event
+                  </button>
+                </div>
+              ) : (
+                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                  {events.map((event) => (
+                    <div
+                      key={event.id}
+                      className="border rounded p-2 mb-2 bg-white"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleSelectEvent(event)}
+                    >
+                      <div className="fw-bold">{event.name}</div>
+                      <small className="text-muted">
+                        {new Date(event.date).toLocaleDateString()} • 
+                        {event.event_type} • {event.select_type}
+                        {event.bride_groom_name && ` • ${event.bride_groom_name}`}
+                        {/* {event.total_amount && ` • ₹${event.total_amount}`} */}
+                      </small>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Selected Event Display */}
+          {selectedEvent && (
+            <div className="border rounded p-3 mb-3" style={{ background: "#e8f5e8" }}>
+              <div className="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 className="fw-bold mb-1 text-success">📅 {selectedEvent.name}</h6>
+                  <small className="text-muted">
+                    {new Date(selectedEvent.date).toLocaleDateString()} • 
+                    {selectedEvent.event_type} • {selectedEvent.select_type}
+                    {selectedEvent.bride_groom_name && ` • ${selectedEvent.bride_groom_name}`}
+                    {selectedEvent.total_amount && ` • ₹${selectedEvent.total_amount}`}
+                  </small>
+                </div>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => {
+                    setSelectedEvent(null);
+                    setRecords([{ date: "", amount: "", select: "mukel", event: "chandlo", bride_groom: "" }]);
+                  }}
+                >
+                  Change
+                </button>
+              </div>
+            </div>
+          )}
+
 
           <h6 className="fw-bold mb-3 mt-4">{records.length > 1 ? "Multiple Records" : "Single Record"}</h6>
 
@@ -407,17 +537,10 @@ const AddRecord = () => {
                 )}
               </div>
 
-              <div className="row g-3 mb-3">
-                <div className="col-6">
-                  <input
-                    type="date"
-                    className={`form-control form-control-lg ${errors[`date_${idx}`] ? 'is-invalid' : ''}`}
-                    value={record.date}
-                    onChange={(e) => updateRecord(idx, "date", e.target.value)}
-                  />
-                  {errors[`date_${idx}`] && <div className="invalid-feedback">{errors[`date_${idx}`]}</div>}
-                </div>
-                <div className="col-6">
+              {/* Only show amount field if event is selected, otherwise show all fields */}
+              {selectedEvent ? (
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">Amount</label>
                   <input
                     type="number"
                     className={`form-control form-control-lg ${errors[`amount_${idx}`] ? 'is-invalid' : ''}`}
@@ -430,53 +553,88 @@ const AddRecord = () => {
                   />
                   {errors[`amount_${idx}`] && <div className="invalid-feedback">{errors[`amount_${idx}`]}</div>}
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="row g-3 mb-3">
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Date</label>
+                      <input
+                        type="date"
+                        className={`form-control form-control-lg ${errors[`date_${idx}`] ? 'is-invalid' : ''}`}
+                        value={record.date}
+                        onChange={(e) => updateRecord(idx, "date", e.target.value)}
+                      />
+                      {errors[`date_${idx}`] && <div className="invalid-feedback">{errors[`date_${idx}`]}</div>}
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Amount</label>
+                      <input
+                        type="number"
+                        className={`form-control form-control-lg ${errors[`amount_${idx}`] ? 'is-invalid' : ''}`}
+                        placeholder="Enter amount"
+                        min="1"
+                        max="1000000"
+                        step="0.01"
+                        value={record.amount}
+                        onChange={(e) => updateRecord(idx, "amount", e.target.value)}
+                      />
+                      {errors[`amount_${idx}`] && <div className="invalid-feedback">{errors[`amount_${idx}`]}</div>}
+                    </div>
+                  </div>
 
-              <div className="row g-3 mb-3">
-                <div className="col-6">
-                  <select
-                    className="form-select form-select-lg"
-                    value={record.select}
-                    onChange={(e) => updateRecord(idx, "select", e.target.value)}
-                  >
-                    <option value="mukel">Mukel</option>
-                    <option value="aavel">Aavel</option>
-                  </select>
-                </div>
-                <div className="col-6">
-                  <select
-                    className="form-select form-select-lg"
-                    value={record.event}
-                    onChange={(e) => updateRecord(idx, "event", e.target.value)}
-                  >
-                    <option value="chandlo">Chandlo</option>
-                    <option value="marriage">Marriage</option>
-                  </select>
-                </div>
-              </div>
+                  <div className="row g-3 mb-3">
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Select Type</label>
+                      <select
+                        className="form-select form-select-lg"
+                        value={record.select}
+                        onChange={(e) => updateRecord(idx, "select", e.target.value)}
+                      >
+                        <option value="mukel">Mukel</option>
+                        <option value="aavel">Aavel</option>
+                      </select>
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Event Type</label>
+                      <select
+                        className="form-select form-select-lg"
+                        value={record.event}
+                        onChange={(e) => updateRecord(idx, "event", e.target.value)}
+                      >
+                        <option value="chandlo">Chandlo</option>
+                        <option value="marriage">Marriage</option>
+                      </select>
+                    </div>
+                  </div>
 
-              {record.event === "marriage" && (
-                <div className="mb-3">
-                  <input
-                    className={`form-control form-control-lg ${errors[`bride_groom_${idx}`] ? 'is-invalid' : ''}`}
-                    placeholder="Bride/Groom name"
-                    maxLength={100}
-                    value={record.bride_groom}
-                    onChange={(e) => updateRecord(idx, "bride_groom", e.target.value)}
-                  />
-                  {errors[`bride_groom_${idx}`] && <div className="invalid-feedback">{errors[`bride_groom_${idx}`]}</div>}
-                </div>
+                  {record.event === "marriage" && (
+                    <div className="mb-3">
+                      <label className="form-label fw-semibold">Bride/Groom Name</label>
+                      <input
+                        className={`form-control form-control-lg ${errors[`bride_groom_${idx}`] ? 'is-invalid' : ''}`}
+                        placeholder="Bride/Groom name"
+                        maxLength={100}
+                        value={record.bride_groom}
+                        onChange={(e) => updateRecord(idx, "bride_groom", e.target.value)}
+                      />
+                      {errors[`bride_groom_${idx}`] && <div className="invalid-feedback">{errors[`bride_groom_${idx}`]}</div>}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           ))}
 
-          <button
-            type="button"
-            className="btn btn-outline-danger rounded-pill mb-3"
-            onClick={addRecord}
-          >
-            Add Another Record
-          </button>
+          {/* Add Record Button - only show if no event selected */}
+          {!selectedEvent && (
+            <button
+              type="button"
+              className="btn btn-outline-danger rounded-pill mb-3"
+              onClick={addRecord}
+            >
+              Add Another Record
+            </button>
+          )}
 
           {/* ✅ SUBMIT */}
           <button

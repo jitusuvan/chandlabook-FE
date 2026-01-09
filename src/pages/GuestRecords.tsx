@@ -20,6 +20,8 @@ interface GuestRecord {
   event: string;
   bride_groom: string | null;
   guest: string;
+  event_type?: string;
+  event_name?: string;
 }
 
 interface GuestRecordsProps {
@@ -163,12 +165,18 @@ const GuestRecords = ({ guest }: GuestRecordsProps) => {
             </span>
           </div>
 
-          <div className="mb-2">
-            <small>
-              <strong>Event:</strong> {record.event === "chandlo" ? "Chandlo" : "Marriage"}
-              {record.bride_groom && ` - ${record.bride_groom}`}
-            </small>
-          </div>
+        <div className="mb-2">
+  <small className="me-3">
+    <strong>Event:</strong>{" "}
+    {record.event_type === "chandlo" ? "Chandlo" : "Marriage"}
+    {record.bride_groom && ` - ${record.bride_groom}`}
+  </small>
+
+  <small>
+    <strong>Event Name:</strong> {record.event_name}
+  </small>
+</div>
+           
 
           <div className="d-flex gap-2 flex-wrap">
             <button 

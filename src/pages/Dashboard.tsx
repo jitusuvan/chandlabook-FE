@@ -31,6 +31,27 @@ const Dashboard = () => {
 
       <div className="row g-3 mb-3">
         <div className="col-6">
+          <div 
+            className="card p-3 shadow-sm" 
+            onClick={() => navigate("/create-event")}
+            style={{ cursor: "pointer" }}
+          >
+            Create Event
+          </div>
+        </div>
+        <div className="col-6">
+          <div 
+            className="card p-3 shadow-sm" 
+            onClick={() => navigate("/events")}
+            style={{ cursor: "pointer" }}
+          >
+            View Events
+          </div>
+        </div>
+      </div>
+
+      <div className="row g-3 mb-3">
+        <div className="col-6">
           <div className="card p-3 shadow-sm">Today ₹300</div>
         </div>
         <div className="col-6">

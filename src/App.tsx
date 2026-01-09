@@ -10,6 +10,8 @@ import AddRecord from './pages/AddRecord';
 import GuestHistory from './pages/GuestHistory';
 import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './pages/Profile';
+import CreateEvent from './pages/CreateEvent';
+import EventsList from './pages/EventsList';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
       <Route path="/add-record" element={<ProtectedRoute><AddRecord /></ProtectedRoute>} />
       <Route path="/guest-history" element={<ProtectedRoute><GuestHistory /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/create-event" element={<ProtectedRoute><CreateEvent /></ProtectedRoute>} />
+      <Route path="/events" element={<ProtectedRoute><EventsList /></ProtectedRoute>} />
     </Routes>
   );
 }
