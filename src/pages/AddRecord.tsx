@@ -4,6 +4,9 @@ import AppLayout from "../layouts/AppLayout";
 import useApi from "../hooks/useApi";
 import { validateForm, commonRules } from "../utils/validation";
 import type { ValidationErrors } from "../utils/validation";
+import FormInput from "../components/ui/FormInput";
+import SearchInput from "../components/ui/SearchInput";
+import FormSelect from "../components/ui/FormSelect";
 
 interface Guest {
   id: string;
@@ -216,15 +219,11 @@ const handleSelectEvent = (event: Event) => {
       {!showGuestForm && !selectedGuest && (
         <div className="mb-4">
           <label className="form-label fw-semibold">Search Guest</label>
-          <div className="input-group input-group-lg">
-            <span className="input-group-text bg-white">🔍</span>
-            <input
-              className="form-control"
-              placeholder="Search by name..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-            />
-          </div>
+          <SearchInput
+            placeholder="Search by name..."
+            value={searchQuery}
+            onChange={handleSearch}
+          />
 
           {/* Search Results */}
           {searchQuery.trim().length >= 2 && (
@@ -285,6 +284,90 @@ const handleSelectEvent = (event: Event) => {
             </div>
           </div>
 
+          {/* Event Selection Button */}
+          {!selectedEvent && (
+            <button 
+              className="btn btn-outline-primary mb-3"
+              onClick={() => {
+                fetchEvents();
+                setShowEventSelection(true);
+              }}
+            >
+              📅 Select Event (Auto-fill Details)
+            </button>
+          )}
+
+          {/* Event Selection Modal */}
+          {showEventSelection && (
+            <div className="border rounded p-3 mb-3" style={{ background: "#f8f9fa" }}>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h6 className="fw-bold mb-0">Select Event</h6>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => setShowEventSelection(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+              
+              {events.length === 0 ? (
+                <div className="text-center py-3">
+                  <div className="text-muted mb-2">No events available</div>
+                  <button
+                    className="btn btn-outline-danger btn-sm"
+                    onClick={() => window.open('/create-event', '_blank')}
+                  >
+                    Create Event
+                  </button>
+                </div>
+              ) : (
+                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                  {events.map((event) => (
+                    <div
+                      key={event.id}
+                      className="border rounded p-2 mb-2 bg-white"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleSelectEvent(event)}
+                    >
+                      <div className="fw-bold">{event.name}</div>
+                      <small className="text-muted">
+                        {new Date(event.date).toLocaleDateString()} • 
+                        {event.event_type} • {event.select_type}
+                        {event.bride_groom_name && ` • ${event.bride_groom_name}`}
+                      </small>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Selected Event Display */}
+          {selectedEvent && (
+            <div className="border rounded p-3 mb-3" style={{ background: "#e8f5e8" }}>
+              <div className="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 className="fw-bold mb-1 text-success">📅 {selectedEvent.name}</h6>
+                  <small className="text-muted">
+                    {new Date(selectedEvent.date).toLocaleDateString()} • 
+                    {selectedEvent.event_type} • {selectedEvent.select_type}
+                    {selectedEvent.bride_groom_name && ` • ${selectedEvent.bride_groom_name}`}
+                    {selectedEvent.total_amount && ` • ₹${selectedEvent.total_amount}`}
+                  </small>
+                </div>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => {
+                    setSelectedEvent(null);
+                    setRecords([{ date: "", amount: "", select: "mukel", event: "chandlo", bride_groom: "" }]);
+                  }}
+                >
+                  Change
+                </button>
+              </div>
+            </div>
+          )}
+
           <h6 className="fw-bold mb-3">{records.length > 1 ? "Multiple Records" : "Single Record"}</h6>
 
           {/* 📅 RECORD DETAILS */}
@@ -303,58 +386,80 @@ const handleSelectEvent = (event: Event) => {
                 )}
               </div>
 
-              <div className="row g-3 mb-3">
-                <div className="col-6">
-                  <input
-                    type="date"
-                    className="form-control form-control-lg"
-                    value={record.date}
-                    onChange={(e) => updateRecord(idx, "date", e.target.value)}
-                  />
-                </div>
-                <div className="col-6">
+              {/* Only show amount field if event is selected, otherwise show all fields */}
+              {selectedEvent ? (
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">Amount</label>
                   <input
                     type="number"
-                    className="form-control form-control-lg"
+                    className={`form-control form-control-lg ${errors[`amount_${idx}`] ? 'is-invalid' : ''}`}
                     placeholder="Enter amount"
+                    min="1"
+                    max="1000000"
+                    step="0.01"
                     value={record.amount}
                     onChange={(e) => updateRecord(idx, "amount", e.target.value)}
                   />
+                  {errors[`amount_${idx}`] && <div className="invalid-feedback">{errors[`amount_${idx}`]}</div>}
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="row g-3 mb-3">
+                    <div className="col-6">
+                      <input
+                        type="date"
+                        className="form-control form-control-lg"
+                        value={record.date}
+                        onChange={(e) => updateRecord(idx, "date", e.target.value)}
+                      />
+                    </div>
+                    <div className="col-6">
+                      <input
+                        type="number"
+                        className="form-control form-control-lg"
+                        placeholder="Enter amount"
+                        value={record.amount}
+                        onChange={(e) => updateRecord(idx, "amount", e.target.value)}
+                      />
+                    </div>
+                  </div>
 
-              <div className="row g-3 mb-3">
-                <div className="col-6">
-                  <select
-                    className="form-select form-select-lg"
-                    value={record.select}
-                    onChange={(e) => updateRecord(idx, "select", e.target.value)}
-                  >
-                    <option value="mukel">Mukel</option>
-                    <option value="aavel">Aavel</option>
-                  </select>
-                </div>
-                <div className="col-6">
-                  <select
-                    className="form-select form-select-lg"
-                    value={record.event}
-                    onChange={(e) => updateRecord(idx, "event", e.target.value)}
-                  >
-                    <option value="chandlo">Chandlo</option>
-                    <option value="marriage">Marriage</option>
-                  </select>
-                </div>
-              </div>
+                  <div className="row g-3 mb-3">
+                    <div className="col-6">
+                      <FormSelect
+                        label="Select Type"
+                        value={record.select}
+                        onChange={(e) => updateRecord(idx, "select", e.target.value)}
+                        options={[
+                          { value: "mukel", label: "Mukel" },
+                          { value: "aavel", label: "Aavel" }
+                        ]}
+                      />
+                    </div>
+                    <div className="col-6">
+                      <FormSelect
+                        label="Event Type"
+                        value={record.event}
+                        onChange={(e) => updateRecord(idx, "event", e.target.value)}
+                        options={[
+                          { value: "chandlo", label: "Chandlo" },
+                          { value: "marriage", label: "Marriage" }
+                        ]}
+                      />
+                    </div>
+                  </div>
 
-              {record.event === "marriage" && (
-                <div className="mb-3">
-                  <input
-                    className="form-control form-control-lg"
-                    placeholder="Bride/Groom name"
-                    value={record.bride_groom}
-                    onChange={(e) => updateRecord(idx, "bride_groom", e.target.value)}
-                  />
-                </div>
+                  {record.event === "marriage" && (
+                    <div className="mb-3">
+                      <input
+                        className="form-control form-control-lg"
+                        placeholder="Bride/Groom name"
+                        value={record.bride_groom}
+                        onChange={(e) => updateRecord(idx, "bride_groom", e.target.value)}
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </div>
           ))}
@@ -383,54 +488,54 @@ const handleSelectEvent = (event: Event) => {
 
           <div className="row g-3 mb-3">
             <div className="col-6">
-              <input
-                className={`form-control form-control-lg ${errors.first_name ? 'is-invalid' : ''}`}
+              <FormInput
                 placeholder="First name"
+                name="first_name"
                 maxLength={50}
                 value={guestData.first_name}
                 onChange={(e) => setGuestData({ ...guestData, first_name: e.target.value })}
+                error={errors.first_name}
               />
-              {errors.first_name && <div className="invalid-feedback">{errors.first_name}</div>}
             </div>
             <div className="col-6">
-              <input
-                className={`form-control form-control-lg ${errors.last_name ? 'is-invalid' : ''}`}
+              <FormInput
                 placeholder="Last name"
+                name="last_name"
                 maxLength={50}
                 value={guestData.last_name}
                 onChange={(e) => setGuestData({ ...guestData, last_name: e.target.value })}
+                error={errors.last_name}
               />
-              {errors.last_name && <div className="invalid-feedback">{errors.last_name}</div>}
             </div>
             <div className="col-6">
-              <input
-                className={`form-control form-control-lg ${errors.surname ? 'is-invalid' : ''}`}
+              <FormInput
                 placeholder="Surname"
+                name="surname"
                 maxLength={50}
                 value={guestData.surname}
                 onChange={(e) => setGuestData({ ...guestData, surname: e.target.value })}
+                error={errors.surname}
               />
-              {errors.surname && <div className="invalid-feedback">{errors.surname}</div>}
             </div>
             <div className="col-6">
-              <input
-                className={`form-control form-control-lg ${errors.mobile_no ? 'is-invalid' : ''}`}
+              <FormInput
                 placeholder="Mobile number"
+                name="mobile_no"
                 maxLength={15}
                 value={guestData.mobile_no}
                 onChange={(e) => setGuestData({ ...guestData, mobile_no: e.target.value })}
+                error={errors.mobile_no}
               />
-              {errors.mobile_no && <div className="invalid-feedback">{errors.mobile_no}</div>}
             </div>
             <div className="col-6">
-              <input
-                className={`form-control form-control-lg ${errors.city ? 'is-invalid' : ''}`}
+              <FormInput
                 placeholder="City"
+                name="city"
                 maxLength={50}
                 value={guestData.city}
                 onChange={(e) => setGuestData({ ...guestData, city: e.target.value })}
+                error={errors.city}
               />
-              {errors.city && <div className="invalid-feedback">{errors.city}</div>}
             </div>
           </div>
           {/* Event Selection Button */}

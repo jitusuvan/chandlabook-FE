@@ -8,6 +8,7 @@ import AppLayout from "../layouts/AppLayout";
 import global from "../config/Global.json";
 import { validateForm, commonRules } from "../utils/validation";
 import type { ValidationErrors } from "../utils/validation";
+import FormInput from "../components/ui/FormInput";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -68,39 +69,27 @@ const Signup = () => {
       // showBack
     >
       <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label className="form-label">First Name</label>
-          <input
-            name="first_name"
-            className={`form-control form-control-lg ${errors.first_name ? 'is-invalid' : ''}`}
-            maxLength={50}
-            required
-          />
-          {errors.first_name && <div className="invalid-feedback">{errors.first_name}</div>}
-        </div>
+        <FormInput
+          label="First Name"
+          name="first_name"
+          maxLength={50}
+          error={errors.first_name}
+        />
 
-        <div className="mb-3">
-          <label className="form-label">Last Name</label>
-          <input
-            name="last_name"
-            className={`form-control form-control-lg ${errors.last_name ? 'is-invalid' : ''}`}
-            maxLength={50}
-            required
-          />
-          {errors.last_name && <div className="invalid-feedback">{errors.last_name}</div>}
-        </div>
+        <FormInput
+          label="Last Name"
+          name="last_name"
+          maxLength={50}
+          error={errors.last_name}
+        />
 
-        <div className="mb-3">
-          <label className="form-label">Email Address</label>
-          <input
-            type="email"
-            name="email"
-            className={`form-control form-control-lg ${errors.email ? 'is-invalid' : ''}`}
-            maxLength={50}
-            required
-          />
-          {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-        </div>
+        <FormInput
+          label="Email Address"
+          type="email"
+          name="email"
+          maxLength={50}
+          error={errors.email}
+        />
 
         <div className="mb-3">
           <label className="form-label">Password</label>

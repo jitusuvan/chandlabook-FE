@@ -1,6 +1,7 @@
 
 
 import './App.css'
+import './styles/global.css'
 import { Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -11,9 +12,19 @@ import GuestHistory from './pages/GuestHistory';
 import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './pages/Profile';
 import CreateEvent from './pages/CreateEvent';
+import { useState } from 'react';
+import SplashScreen from './components/SplashScreen';
 import EventsList from './pages/EventsList';
+import InvitationGenerator from './pages/InvitationGenerator';
+
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  if (showSplash) {
+    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  }
+
   return (
     <Routes>
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
@@ -24,6 +35,7 @@ function App() {
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/create-event" element={<ProtectedRoute><CreateEvent /></ProtectedRoute>} />
       <Route path="/events" element={<ProtectedRoute><EventsList /></ProtectedRoute>} />
+      <Route path="/events/:eventId/invitation" element={<ProtectedRoute><InvitationGenerator /></ProtectedRoute>} />
     </Routes>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "../layouts/AppLayout";
 import useApi from "../hooks/useApi";
+import { FaEnvelope } from "react-icons/fa";
 
 interface Event {
   id: string;
@@ -149,9 +150,21 @@ const EventsList = () => {
                     </span>
                   )}
                 </div>
-                <small className="text-muted">
-                  Created {formatDate(event.created_at)}
-                </small>
+                <div className="d-flex align-items-center">
+                  <button
+                    className="btn btn-sm btn-outline-primary me-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/events/${event.id}/invitation`);
+                    }}
+                  >
+                    <FaEnvelope className="me-1" />
+                    Invite
+                  </button>
+                  <small className="text-muted">
+                    Created {formatDate(event.created_at)}
+                  </small>
+                </div>
               </div>
             </div>
           ))}

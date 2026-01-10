@@ -24,11 +24,18 @@ interface GuestRecord {
   event_name?: string;
 }
 
-interface GuestRecordsProps {
-  guest: Guest;
+interface GuestSummary {
+  aavel_total: number;
+  mukel_total: number;
+  difference: number;
 }
 
-const GuestRecords = ({ guest }: GuestRecordsProps) => {
+interface GuestRecordsProps {
+  guest: Guest;
+  summary: GuestSummary | null;
+}
+
+const GuestRecords = ({ guest, summary }: GuestRecordsProps) => {
   const { GetPaginatedData, Patch, Delete } = useApi();
   const [records, setRecords] = useState<GuestRecord[]>([]);
   const [loading, setLoading] = useState(false);
@@ -149,6 +156,34 @@ const GuestRecords = ({ guest }: GuestRecordsProps) => {
 
   return (
     <>
+      {summary && (
+        <div className="row g-2 mb-3 mx-1">
+          <div className="col-4">
+            <div className="card text-center bg-light border-0 shadow-sm">
+              <div className="card-body p-2 py-3">
+                <small className="text-muted d-block mb-1">Aavel</small>
+                <div className="fw-bold text-success fs-6">₹{summary.aavel_total}</div>
+              </div>
+            </div>
+          </div>
+          <div className="col-4">
+            <div className="card text-center bg-light border-0 shadow-sm">
+              <div className="card-body p-2 py-3">
+                <small className="text-muted d-block mb-1">Mukel</small>
+                <div className="fw-bold text-danger fs-6">₹{summary.mukel_total}</div>
+              </div>
+            </div>
+          </div>
+          <div className="col-4">
+            <div className="card text-center bg-light border-0 shadow-sm">
+              <div className="card-body p-2 py-3">
+                <small className="text-muted d-block mb-1">Difference</small>
+                <div className="fw-bold text-primary fs-6">₹{summary.difference}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {records.map((record) => (
         <div
           key={record.id}

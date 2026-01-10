@@ -7,35 +7,48 @@ type AppLayoutProps = {
   showProfile?: boolean;
   summaryCards?: React.ReactNode;
   children: React.ReactNode;
+  onBackClick?: () => void;
 };
 
-const AppLayout = ({ title, subtitle, showBack, showProfile, summaryCards, children }: AppLayoutProps) => {
+const AppLayout = ({ title, subtitle, showBack, showProfile, summaryCards, children, onBackClick }: AppLayoutProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-vh-100 bg-light d-flex justify-content-center align-items-start pt-3 pt-md-5 px-2 px-md-0">
+    <div className="min-vh-100 bg-light d-flex justify-content-center align-items-center px-2 px-md-0">
       <div
         className="w-100 bg-white shadow-sm"
-        style={{ maxWidth: 430, borderRadius: "16px", overflow: "hidden" }}
+        style={{ maxWidth: 430, borderRadius: "16px", overflow: "hidden", minHeight: "500px" }}
       >
         {/* RED HEADER */}
-        <div
+        {/* <div
           className="bg-danger text-white position-relative d-flex flex-column justify-content-center"
           style={{ 
-            minHeight: "180px", 
+            minHeight: "0px", 
             height: "auto", 
             borderBottomLeftRadius: "16px", 
             borderBottomRightRadius: "16px",
-            padding: "20px 0"
+            padding: "10px 0"
+          }}
+        > */}
+
+          <div
+          className="bg-white text-black position-relative d-flex flex-column justify-content-center shadow-md"
+          style={{ 
+            minHeight: "0px", 
+            height: "auto", 
+            // borderBottomLeftRadius: "16px", 
+            // borderBottomRightRadius: "16px",
+            padding: "10px 0"
           }}
         >
+          
           {showBack && (
             <div
-              className="position-absolute start-0 top-0 mt-3 ms-3"
-              onClick={() => navigate(-1)}
+              className="position-absolute start-0 top-0 mt-2 ms-3"
+              onClick={() => onBackClick ? onBackClick() : navigate(-1)}
               style={{
-                width: "36px",
-                height: "36px",
+                width: "30px",
+                height: "30px",
                 borderRadius: "50%",
                 background: "rgba(255, 255, 255, 0.2)",
                 display: "flex",
@@ -65,10 +78,10 @@ const AppLayout = ({ title, subtitle, showBack, showProfile, summaryCards, child
               className="position-absolute end-0 top-0 mt-3 me-3"
               onClick={() => navigate("/profile")}
               style={{
-                width: 40,
-                height: 40,
+                width: 20,
+                height: 20,
                 borderRadius: "50%",
-                background: "#ffffff33",
+                background: "#000000",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -76,13 +89,13 @@ const AppLayout = ({ title, subtitle, showBack, showProfile, summaryCards, child
                 fontWeight: "bold",
               }}
             >
-              J
+              {/* {username} */}
             </div>
           )}
 
           <div className="text-center px-3">
-            <h4 className="fw-bold mb-1 fs-5 fs-md-4">{title}</h4>
-            {subtitle && <p className="text-white-50 mb-0 small">{subtitle}</p>}
+          <h4 className="fw-semibold mb-1 fs-6">{title}</h4>
+            {subtitle && <p className="text-white-30 mb-0 small">{subtitle}</p>}
           </div>
           
           {summaryCards && (

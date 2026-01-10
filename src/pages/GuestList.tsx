@@ -156,7 +156,7 @@ const GuestList = ({ onSelectGuest }: GuestListProps) => {
   return (
     <>
       <div className="input-group input-group-lg mb-3">
-        <span className="input-group-text bg-white">🔍</span>
+        
         <input
           className="form-control"
           placeholder="Search by name..."

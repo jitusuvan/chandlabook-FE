@@ -61,45 +61,27 @@ const GuestHistory = () => {
 
 
 
+  const handleBackClick = () => {
+    if (selectedGuest) {
+      setSelectedGuest(null);
+      setSummary(null);
+    } else {
+      // Default back behavior when no guest selected
+      window.history.back();
+    }
+  };
+
   return (
     <AppLayout 
       title={selectedGuest ? (selectedGuest.guest_name || `${selectedGuest.first_name}  ${selectedGuest.surname}`) : "History"}
-      summaryCards={summary ? (
-        <div className="row g-2 mt-3 mx-1">
-          <div className="col-4">
-            <div className="card text-center bg-light border-0 shadow-sm">
-              <div className="card-body p-2 py-3">
-                <small className="text-muted d-block mb-1">Aavel</small>
-                <div className="fw-bold text-success fs-6">₹{summary.aavel_total}</div>
-              </div>
-            </div>
-          </div>
-          <div className="col-4">
-            <div className="card text-center bg-light border-0 shadow-sm">
-              <div className="card-body p-2 py-3">
-                <small className="text-muted d-block mb-1">Mukel</small>
-                <div className="fw-bold text-danger fs-6">₹{summary.mukel_total}</div>
-              </div>
-            </div>
-          </div>
-          <div className="col-4">
-            <div className="card text-center bg-light border-0 shadow-sm">
-              <div className="card-body p-2 py-3">
-                <small className="text-muted d-block mb-1">Difference</small>
-                <div className="fw-bold text-primary fs-6">₹{summary.difference}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : undefined}
       showBack
+      onBackClick={handleBackClick}
     >
       {!selectedGuest ? (
         <GuestList onSelectGuest={handleSelectGuest} />
       ) : (
-        <GuestRecords guest={selectedGuest} />
+        <GuestRecords guest={selectedGuest} summary={summary} />
       )}
-
     </AppLayout>
   );
 };
