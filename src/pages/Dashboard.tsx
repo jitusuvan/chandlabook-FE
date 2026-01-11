@@ -10,7 +10,8 @@ import {
   // FaCalendarDay,
   // FaCalendarWeek,
   FaCalendarAlt,
-  FaEnvelope
+  FaEnvelope,
+  FaRupeeSign
 } from "react-icons/fa";
 import { useState, useEffect } from "react";
 
@@ -109,6 +110,13 @@ const [summary, setSummary] = useState<DashboardSummary>({
           onClick={() => navigate("/add-record")}
         />
 
+       <DashboardCard
+          icon={<FaUsers />}
+          label="Guest Record"
+          color="primary"
+          onClick={() => navigate("/guest-history")}
+        />
+
         <DashboardCard
           icon={<FaCalendarPlus />}
           label="Add Event"
@@ -130,12 +138,14 @@ const [summary, setSummary] = useState<DashboardSummary>({
           onClick={() => navigate("/events")}
         />
         
-         <DashboardCard
-          icon={<FaUsers />}
-          label="Guest List"
-          color="primary"
-          onClick={() => navigate("/guest-history")}
+        <DashboardCard
+          icon={<FaRupeeSign />}
+          label="Expenses"
+          color="warning"
+          onClick={() => navigate("/expenses")}
         />
+        
+       
 
         {/* <DashboardCard
           icon={<FaCalendarDay />}

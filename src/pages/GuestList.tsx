@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import useApi from "../hooks/useApi";
 import { confirmDelete } from "../utils/sweetAlert";
+import { FaSearch, FaEdit, FaTrash, FaUser, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 
 interface Guest {
   id: string;
@@ -134,9 +135,11 @@ const GuestList = ({ onSelectGuest }: GuestListProps) => {
     return (
       <>
         <div className="input-group input-group-lg mb-3">
-          <span className="input-group-text bg-white">🔍</span>
+          <span className="input-group-text bg-white border-end-0">
+            <FaSearch className="text-muted" />
+          </span>
           <input
-            className="form-control"
+            className="form-control border-start-0 rounded-end-4"
             placeholder="Search by name..."
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
@@ -156,9 +159,11 @@ const GuestList = ({ onSelectGuest }: GuestListProps) => {
   return (
     <>
       <div className="input-group input-group-lg mb-3">
-        
+        <span className="input-group-text bg-white border-end-0">
+          <FaSearch className="text-muted" />
+        </span>
         <input
-          className="form-control"
+          className="form-control border-start-0 rounded-end-4"
           placeholder="Search by name..."
           value={searchQuery}
           onChange={(e) => handleSearch(e.target.value)}
@@ -168,45 +173,55 @@ const GuestList = ({ onSelectGuest }: GuestListProps) => {
       {guests.map((guest) => (
         <div
           key={guest.id}
-          className="border rounded p-3 mb-3 shadow-sm"
-          style={{ background: "#fff" }}
+          className="card border-0 shadow-sm rounded-4 mb-3"
+          style={{ transition: "all 0.2s ease" }}
         >
-          <div 
-            className="cursor-pointer"
-            onClick={() => onSelectGuest(guest)}
-            style={{ transition: "all 0.2s ease" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            <h6 className="mb-1 fw-bold fs-6">
-              {guest.first_name} {guest.last_name} {guest.surname}
-            </h6>
-            <small className="text-muted">{guest.city} • {guest.mobile_no}</small>
-          </div>
-          
-          <div className="d-flex gap-2 flex-wrap mt-2">
-            <button 
-              className="btn btn-outline-primary btn-sm flex-fill"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEditGuest(guest);
-              }}
+          <div className="card-body p-3">
+            <div 
+              className="cursor-pointer"
+              onClick={() => onSelectGuest(guest)}
+              style={{ cursor: "pointer" }}
             >
-              Edit
-            </button>
-            <button 
-              className="btn btn-outline-danger btn-sm flex-fill"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteGuest(guest.id);
-              }}
-            >
-              Delete
-            </button>
+              <div className="d-flex align-items-center mb-2">
+                <div className="bg-primary rounded-circle p-2 me-3">
+                  <FaUser className="text-white" size={16} />
+                </div>
+                <div className="flex-grow-1">
+                  <h6 className="mb-1 fw-bold">
+                    {guest.first_name} {guest.last_name} {guest.surname}
+                  </h6>
+                  <div className="d-flex align-items-center text-muted small">
+                    <FaMapMarkerAlt className="me-1" size={12} />
+                    <span className="me-3">{guest.city}</span>
+                    <FaPhone className="me-1" size={12} />
+                    <span>{guest.mobile_no}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="d-flex gap-2">
+              <button 
+                className="btn btn-outline-primary btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEditGuest(guest);
+                }}
+              >
+                <FaEdit className="me-1" size={12} />
+                <span>Edit</span>
+              </button>
+              <button 
+                className="btn btn-outline-danger btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteGuest(guest.id);
+                }}
+              >
+                <FaTrash className="me-1" size={12} />
+                <span>Delete</span>
+              </button>
+            </div>
           </div>
         </div>
       ))}

@@ -16,6 +16,10 @@ import { useState } from 'react';
 import SplashScreen from './components/SplashScreen';
 import EventsList from './pages/EventsList';
 import InvitationGenerator from './pages/InvitationGenerator';
+import ExpenseManagement from './pages/ExpenseManagement';
+import ExpenseManager from './pages/ExpenseManager';
+import AddExpense from './pages/AddExpense';
+import ViewExpenses from './pages/ViewExpenses';
 
 
 function App() {
@@ -36,6 +40,9 @@ function App() {
       <Route path="/create-event" element={<ProtectedRoute><CreateEvent /></ProtectedRoute>} />
       <Route path="/events" element={<ProtectedRoute><EventsList /></ProtectedRoute>} />
       <Route path="/events/:eventId/invitation" element={<ProtectedRoute><InvitationGenerator /></ProtectedRoute>} />
+      <Route path="/events/:eventId/expenses" element={<ProtectedRoute><ExpenseManagement /></ProtectedRoute>} />
+      <Route path="/expenses" element={<ProtectedRoute><ViewExpenses /></ProtectedRoute>} />
+      <Route path="/add-expense" element={<ProtectedRoute><AddExpense /></ProtectedRoute>} />
     </Routes>
   );
 }

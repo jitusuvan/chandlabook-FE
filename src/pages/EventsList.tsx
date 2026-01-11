@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "../layouts/AppLayout";
 import useApi from "../hooks/useApi";
-import { FaEnvelope } from "react-icons/fa";
+import { FaShare, FaChartLine, FaHeart, FaFire, FaSearch, FaCircle } from "react-icons/fa";
 
 interface Event {
   id: string;
@@ -50,11 +50,15 @@ const EventsList = () => {
   };
 
   const getEventTypeIcon = (eventType: string) => {
-    return eventType === "marriage" ? "💒" : "🪔";
+    return eventType === "marriage" ? 
+      <FaHeart className="text-danger" /> : 
+      <FaFire className="text-warning" />;
   };
 
   const getSelectTypeBadge = (selectType: string) => {
-    return selectType === "mukel" ? "🔴" : "🟢";
+    return selectType === "mukel" ? 
+      <FaCircle className="text-danger" size={8} /> : 
+      <FaCircle className="text-success" size={8} />;
   };
 
   return (
@@ -63,7 +67,7 @@ const EventsList = () => {
       {/* Search Bar */}
       <div className="mb-3">
         <div className="input-group input-group-lg">
-          <span className="input-group-text bg-white">🔍</span>
+          <span className="input-group-text bg-white"><FaSearch /></span>
           <input
             className="form-control"
             placeholder="Search events..."
@@ -109,13 +113,14 @@ const EventsList = () => {
           {events.map((event) => (
             <div
               key={event.id}
-              className="border rounded p-3 mb-3"
-              style={{ background: "#fff", cursor: "pointer" }}
+              className="card border-0 shadow-sm rounded-4 mb-3"
+              style={{ cursor: "pointer" }}
               onClick={() => {
                 // You can add navigation to event details page here
                 console.log("Event clicked:", event);
               }}
             >
+              <div className="card-body p-3">
               <div className="d-flex justify-content-between align-items-start mb-2">
                 <div className="d-flex align-items-center">
                   <span className="me-2 fs-4">{getEventTypeIcon(event.event_type)}</span>
@@ -134,9 +139,9 @@ const EventsList = () => {
                 </div>
               </div>
 
-              <div className="d-flex justify-content-between align-items-center">
+              <div className="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                  <span className="badge bg-light text-dark text-capitalize">
+                  <span className="badge bg-light text-dark text-capitalize rounded-pill px-3">
                     {event.event_type}
                   </span>
                   {event.bride_groom_name && (
@@ -146,25 +151,35 @@ const EventsList = () => {
                   )}
                   {event.total_amount && (
                     <span className="ms-2 fw-bold text-success">
-                      ₹{event.total_amount}
+                      ₹{event.total_amount.toLocaleString()}
                     </span>
                   )}
                 </div>
-                <div className="d-flex align-items-center">
-                  <button
-                    className="btn btn-sm btn-outline-primary me-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/events/${event.id}/invitation`);
-                    }}
-                  >
-                    <FaEnvelope className="me-1" />
-                    Invite
-                  </button>
-                  <small className="text-muted">
-                    Created {formatDate(event.created_at)}
-                  </small>
-                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-primary btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/events/${event.id}/invitation`);
+                  }}
+                >
+                  <FaShare className="me-2" size={12} />
+                  <span className="fw-semibold">Invite</span>
+                </button>
+                <button
+                  className="btn btn-success btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/events/${event.id}/expenses`);
+                  }}
+                >
+                  <FaChartLine className="me-2" size={12} />
+                  <span className="fw-semibold">Expenses</span>
+                </button>
+              </div>
               </div>
             </div>
           ))}
