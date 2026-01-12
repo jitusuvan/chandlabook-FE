@@ -37,23 +37,20 @@ label {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
 }
 
-/* CUSTOM SCROLLBAR */
+/* CUSTOM SCROLLBAR - HIDE SCROLLBAR */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 0px;
+  background: transparent;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
+/* For Firefox */
+* {
+  scrollbar-width: none;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #dc3545;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #c82333;
+/* For IE and Edge */
+* {
+  -ms-overflow-style: none;
 }
 
 /* LOADING ANIMATION */

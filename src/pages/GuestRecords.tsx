@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import useApi from "../hooks/useApi";
 import { confirmDelete } from "../utils/sweetAlert";
-import { FaEdit, FaTrash, FaRupeeSign, FaCalendarAlt, FaCreditCard, FaCheckCircle, FaClock } from "react-icons/fa";
+import { FaEdit, FaTrash, FaRupeeSign, FaCalendarAlt, FaCheckCircle, FaClock } from "react-icons/fa";
 
 interface Guest {
   id: string;

@@ -14,30 +14,15 @@ const AppLayout = ({ title, subtitle, showBack, showProfile, summaryCards, child
   const navigate = useNavigate();
 
   return (
-    <div className="min-vh-100 bg-light d-flex justify-content-center align-items-center px-2 px-md-0">
+    <div className="vh-100 bg-light d-flex justify-content-center px-2 px-md-0">
       <div
-        className="w-100 bg-white shadow-sm"
-        style={{ maxWidth: 430, borderRadius: "16px", overflow: "hidden", minHeight: "500px" }}
+        className="w-100 bg-white shadow-sm d-flex flex-column"
+        style={{ maxWidth: 430, borderRadius: "16px", overflow: "hidden" }}
       >
-        {/* RED HEADER */}
-        {/* <div
-          className="bg-danger text-white position-relative d-flex flex-column justify-content-center"
+        {/* HEADER */}
+        <div
+          className="bg-white text-black position-relative d-flex flex-column justify-content-center shadow-md flex-shrink-0"
           style={{ 
-            minHeight: "0px", 
-            height: "auto", 
-            borderBottomLeftRadius: "16px", 
-            borderBottomRightRadius: "16px",
-            padding: "10px 0"
-          }}
-        > */}
-
-          <div
-          className="bg-white text-black position-relative d-flex flex-column justify-content-center shadow-md"
-          style={{ 
-            minHeight: "0px", 
-            height: "auto", 
-            // borderBottomLeftRadius: "16px", 
-            // borderBottomRightRadius: "16px",
             padding: "10px 0"
           }}
         >
@@ -105,7 +90,10 @@ const AppLayout = ({ title, subtitle, showBack, showProfile, summaryCards, child
           )}
         </div>
 
-        <div className="p-3 p-md-4">{children}</div>
+        {/* SCROLLABLE CONTENT */}
+        <div className="flex-grow-1 overflow-auto" style={{ minHeight: 0 }}>
+          <div className="p-3 p-md-4">{children}</div>
+        </div>
       </div>
     </div>
   );

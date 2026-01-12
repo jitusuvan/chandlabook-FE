@@ -4,9 +4,10 @@ import AppLayout from "../layouts/AppLayout";
 import useApi from "../hooks/useApi";
 import { validateForm, commonRules } from "../utils/validation";
 import type { ValidationErrors } from "../utils/validation";
+import { capitalizeFirst } from "../utils/textUtils";
 import FormInput from "../components/ui/FormInput";
 import SearchInput from "../components/ui/SearchInput";
-import FormSelect from "../components/ui/FormSelect";
+import PaginatedSearchSelect from "../components/ui/PaginatedSearchSelect";
 
 interface Guest {
   id: string;
@@ -51,18 +52,7 @@ const AddRecord = () => {
       pay_later: false,
     },
   ]);
-const [events, setEvents] = useState<Event[]>([]);
 const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-const [showEventSelection, setShowEventSelection] = useState(false);
-
-const fetchEvents = async () => {
-  try {
-    const result = await GetPaginatedData("events");
-    setEvents(result.data);
-  } catch (error) {
-    console.error("Failed to fetch events", error);
-  }
-};
 
 const handleSelectEvent = (event: Event) => {
   setSelectedEvent(event);
@@ -75,7 +65,6 @@ const handleSelectEvent = (event: Event) => {
     bride_groom: event.bride_groom_name || "",
     pay_later: false,
   }]);
-  setShowEventSelection(false);
 };
 
   const addRecord = () => {
@@ -292,63 +281,16 @@ const handleSelectEvent = (event: Event) => {
             </div>
           </div>
 
-          {/* Event Selection Button */}
-          {!selectedEvent && (
-            <button 
-              className="btn btn-outline-primary mb-3"
-              onClick={() => {
-                fetchEvents();
-                setShowEventSelection(true);
-              }}
-            >
-              📅 Select Event (Auto-fill Details)
-            </button>
-          )}
-
-          {/* Event Selection Modal */}
-          {showEventSelection && (
-            <div className="border rounded p-3 mb-3" style={{ background: "#f8f9fa" }}>
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h6 className="fw-bold mb-0">Select Event</h6>
-                <button
-                  className="btn btn-sm btn-outline-secondary"
-                  onClick={() => setShowEventSelection(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-              
-              {events.length === 0 ? (
-                <div className="text-center py-3">
-                  <div className="text-muted mb-2">No events available</div>
-                  <button
-                    className="btn btn-outline-danger btn-sm"
-                    onClick={() => window.open('/create-event', '_blank')}
-                  >
-                    Create Event
-                  </button>
-                </div>
-              ) : (
-                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                  {events.map((event) => (
-                    <div
-                      key={event.id}
-                      className="border rounded p-2 mb-2 bg-white"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleSelectEvent(event)}
-                    >
-                      <div className="fw-bold">{event.name}</div>
-                      <small className="text-muted">
-                        {new Date(event.date).toLocaleDateString()} • 
-                        {event.event_type} • {event.select_type}
-                        {event.bride_groom_name && ` • ${event.bride_groom_name}`}
-                      </small>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Select Event (Auto-fill Details)</label>
+            <PaginatedSearchSelect
+              api="events"
+              getOptionLabel={(event) => `${event.name} - ${new Date(event.date).toLocaleDateString()}`}
+              onSelect={handleSelectEvent}
+              value={selectedEvent}
+              placeholder="Search and select event..."
+            />
+          </div>
 
           {/* Selected Event Display */}
           {selectedEvent && (
@@ -367,7 +309,7 @@ const handleSelectEvent = (event: Event) => {
                   className="btn btn-sm btn-outline-secondary"
                   onClick={() => {
                     setSelectedEvent(null);
-                    setRecords([{ date: "", amount: "", select: "mukel", event: "chandlo", bride_groom: "" }]);
+                    setRecords([{ date: "", amount: "", select: "mukel", event: "chandlo", bride_groom: "", pay_later: false }]);
                   }}
                 >
                   Change
@@ -552,7 +494,7 @@ const handleSelectEvent = (event: Event) => {
                 name="first_name"
                 maxLength={50}
                 value={guestData.first_name}
-                onChange={(e) => setGuestData({ ...guestData, first_name: e.target.value })}
+                onChange={(e) => setGuestData({ ...guestData, first_name: capitalizeFirst(e.target.value) })}
                 error={errors.first_name}
               />
             </div>
@@ -562,7 +504,7 @@ const handleSelectEvent = (event: Event) => {
                 name="last_name"
                 maxLength={50}
                 value={guestData.last_name}
-                onChange={(e) => setGuestData({ ...guestData, last_name: e.target.value })}
+                onChange={(e) => setGuestData({ ...guestData, last_name: capitalizeFirst(e.target.value) })}
                 error={errors.last_name}
               />
             </div>
@@ -572,7 +514,7 @@ const handleSelectEvent = (event: Event) => {
                 name="surname"
                 maxLength={50}
                 value={guestData.surname}
-                onChange={(e) => setGuestData({ ...guestData, surname: e.target.value })}
+                onChange={(e) => setGuestData({ ...guestData, surname: capitalizeFirst(e.target.value) })}
                 error={errors.surname}
               />
             </div>
@@ -592,69 +534,21 @@ const handleSelectEvent = (event: Event) => {
                 name="city"
                 maxLength={50}
                 value={guestData.city}
-                onChange={(e) => setGuestData({ ...guestData, city: e.target.value })}
+                onChange={(e) => setGuestData({ ...guestData, city: capitalizeFirst(e.target.value) })}
                 error={errors.city}
               />
             </div>
           </div>
-          {/* Event Selection Button */}
-          {!selectedEvent && (
-            <button 
-              className="btn btn-outline-primary mb-3"
-              onClick={() => {
-                fetchEvents();
-                setShowEventSelection(true);
-              }}
-            >
-              📅 Select Event (Auto-fill Details)
-            </button>
-          )}
-
-          {/* Event Selection Modal */}
-          {showEventSelection && (
-            <div className="border rounded p-3 mb-3" style={{ background: "#f8f9fa" }}>
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h6 className="fw-bold mb-0">Select Event</h6>
-                <button
-                  className="btn btn-sm btn-outline-secondary"
-                  onClick={() => setShowEventSelection(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-              
-              {events.length === 0 ? (
-                <div className="text-center py-3">
-                  <div className="text-muted mb-2">No events available</div>
-                  <button
-                    className="btn btn-outline-danger btn-sm"
-                    onClick={() => window.open('/create-event', '_blank')}
-                  >
-                    Create Event
-                  </button>
-                </div>
-              ) : (
-                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                  {events.map((event) => (
-                    <div
-                      key={event.id}
-                      className="border rounded p-2 mb-2 bg-white"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => handleSelectEvent(event)}
-                    >
-                      <div className="fw-bold">{event.name}</div>
-                      <small className="text-muted">
-                        {new Date(event.date).toLocaleDateString()} • 
-                        {event.event_type} • {event.select_type}
-                        {event.bride_groom_name && ` • ${event.bride_groom_name}`}
-                        {/* {event.total_amount && ` • ₹${event.total_amount}`} */}
-                      </small>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Select Event (Auto-fill Details)</label>
+            <PaginatedSearchSelect
+              api="events"
+              getOptionLabel={(event) => `${event.name} - ${new Date(event.date).toLocaleDateString()}`}
+              onSelect={handleSelectEvent}
+              value={selectedEvent}
+              placeholder="Search and select event..."
+            />
+          </div>
 
           {/* Selected Event Display */}
           {selectedEvent && (
@@ -673,7 +567,7 @@ const handleSelectEvent = (event: Event) => {
                   className="btn btn-sm btn-outline-secondary"
                   onClick={() => {
                     setSelectedEvent(null);
-                    setRecords([{ date: "", amount: "", select: "mukel", event: "chandlo", bride_groom: "" }]);
+                    setRecords([{ date: "", amount: "", select: "mukel", event: "chandlo", bride_groom: "", pay_later: false }]);
                   }}
                 >
                   Change

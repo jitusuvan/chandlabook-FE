@@ -5,6 +5,7 @@ import AppLayout from "../layouts/AppLayout";
 import useApi from "../hooks/useApi";
 import FormInput from "../components/ui/FormInput";
 import type { ValidationErrors } from "../utils/validation";
+import { capitalizeFirst } from "../utils/textUtils";
 
 const CreateEvent = () => {
   const { Post } = useApi();
@@ -84,8 +85,8 @@ const CreateEvent = () => {
       });
       
       // Navigate to invitation generator
-      if (response?.id) {
-        navigate(`/events/${response.id}/invitation`);
+      if (response?.data?.id) {
+        navigate(`/events/${response.data.id}/invitation`);
       }
       
     } catch (error: any) {
@@ -133,7 +134,7 @@ const CreateEvent = () => {
   value={eventData.name}
   maxLength={100}
   error={errors.name}
-  onChange={(e) => handleInputChange("name", e.target.value)}
+  onChange={(e) => handleInputChange("name", capitalizeFirst(e.target.value))}
 />
    
     </div>
@@ -192,21 +193,14 @@ const CreateEvent = () => {
           ❤️ Couple Details
         </div>
 
-        <input
-          className={`form-control form-control-lg rounded-4 ${
-            errors.bride_groom_name ? "is-invalid" : ""
-          }`}
+        <FormInput
           placeholder="Bride & Groom Name (e.g., Raj & Priya)"
           value={eventData.bride_groom_name}
           onChange={(e) =>
-            handleInputChange("bride_groom_name", e.target.value)
+            handleInputChange("bride_groom_name", capitalizeFirst(e.target.value))
           }
+          error={errors.bride_groom_name}
         />
-        {errors.bride_groom_name && (
-          <div className="invalid-feedback d-block">
-            {errors.bride_groom_name}
-          </div>
-        )}
       </div>
     )}
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import useApi from "../hooks/useApi";
 import { confirmDelete } from "../utils/sweetAlert";
+import SearchInput from "../components/ui/SearchInput";
 import { FaSearch, FaEdit, FaTrash, FaUser, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 
 interface Guest {
@@ -158,16 +159,12 @@ const GuestList = ({ onSelectGuest }: GuestListProps) => {
 
   return (
     <>
-      <div className="input-group input-group-lg mb-3">
-        <span className="input-group-text bg-white border-end-0">
-          <FaSearch className="text-muted" />
-        </span>
-        <input
-          className="form-control border-start-0 rounded-end-4"
-          placeholder="Search by name..."
-          value={searchQuery}
-          onChange={(e) => handleSearch(e.target.value)}
-        />
+      <div className="mb-3">
+          <SearchInput
+            placeholder="Search by name..."
+            value={searchQuery}
+            onChange={handleSearch}
+          />
       </div>
 
       {guests.map((guest) => (

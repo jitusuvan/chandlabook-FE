@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import AppLayout from '../layouts/AppLayout';
 import useApi from '../hooks/useApi';
-
+import PaginatedSearchSelect from '../components/ui/PaginatedSearchSelect';
+import { capitalizeFirst } from '../utils/textUtils';
 
 interface Event {
   id: string;
@@ -14,40 +15,17 @@ interface Event {
 
 const AddExpense = () => {
   const navigate = useNavigate();
-  const { Get, Post } = useApi();
+  const { Post } = useApi();
   
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [formData, setFormData] = useState({
-    eventId: '',
     name: '',
     amount: '',
     notes: ''
   });
 
-  useEffect(() => {
-    fetchEvents();
-  }, []);
-
-  const fetchEvents = async () => {
-    try {
-      const response = await Get('events');
-      let eventData = [];
-      if (Array.isArray(response)) {
-        eventData = response;
-      } else if (response && Array.isArray(response.results)) {
-        eventData = response.results;
-      }
-      setEvents(eventData);
-    } catch (error) {
-      console.error('Failed to fetch events:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSubmit = async () => {
-    if (!formData.eventId) {
+    if (!selectedEvent) {
       toast.error('Please select an event');
       return;
     }
@@ -59,7 +37,7 @@ const AddExpense = () => {
 
     try {
       const payload = {
-        event: formData.eventId,
+        event: selectedEvent.id,
         name: formData.name.trim(),
         amount: parseFloat(formData.amount),
         notes: formData.notes.trim() || null
@@ -68,10 +46,7 @@ const AddExpense = () => {
       await Post('expense', payload);
       toast.success('Expense added successfully!');
       
-      // Reset form
-      setFormData({ eventId: '', name: '', amount: '', notes: '' });
-      
-      // Navigate to expenses list
+      resetForm();
       navigate('/expenses');
     } catch (error: any) {
       console.error('Failed to save expense:', error);
@@ -80,20 +55,9 @@ const AddExpense = () => {
   };
 
   const resetForm = () => {
-    setFormData({ eventId: '', name: '', amount: '', notes: '' });
+    setFormData({ name: '', amount: '', notes: '' });
+    setSelectedEvent(null);
   };
-
-  if (loading) {
-    return (
-      <AppLayout title="Add Expense" showBack>
-        <div className="text-center py-5">
-          <div className="spinner-border text-danger" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
 
   return (
     <AppLayout title="Add Expense" showBack>
@@ -104,18 +68,13 @@ const AddExpense = () => {
 
             <div className="mb-3">
               <label className="form-label fw-semibold">Select Event *</label>
-              <select
-                className="form-select form-select-lg rounded-4"
-                value={formData.eventId}
-                onChange={(e) => setFormData({...formData, eventId: e.target.value})}
-              >
-                <option value="">Choose an event...</option>
-                {events.map(event => (
-                  <option key={event.id} value={event.id}>
-                    {event.name} - {new Date(event.date).toLocaleDateString('en-IN')}
-                  </option>
-                ))}
-              </select>
+              <PaginatedSearchSelect
+                api="events"
+                getOptionLabel={(event) => `${event.name} - ${new Date(event.date).toLocaleDateString()}`}
+                onSelect={(event) => setSelectedEvent(event)}
+                value={selectedEvent}
+                placeholder="Search and select event..."
+              />
             </div>
               
             <div className="mb-3">
@@ -124,7 +83,7 @@ const AddExpense = () => {
                 type="text"
                 className="form-control form-control-lg rounded-4"
                 value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                onChange={(e) => setFormData({...formData, name: capitalizeFirst(e.target.value)})}
                 placeholder="e.g., Decoration, Catering, etc."
               />
             </div>
@@ -150,7 +109,7 @@ const AddExpense = () => {
                 className="form-control rounded-4"
                 rows={3}
                 value={formData.notes}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                onChange={(e) => setFormData({...formData, notes: capitalizeFirst(e.target.value)})}
                 placeholder="Additional details (optional)"
               />
             </div>

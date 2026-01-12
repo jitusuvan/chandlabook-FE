@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "../layouts/AppLayout";
 import useApi from "../hooks/useApi";
-import { FaShare, FaChartLine, FaHeart, FaFire, FaSearch, FaCircle } from "react-icons/fa";
+import AuthContext from "../contexts/AuthContext";
+import { FaShare, FaChartLine, FaHeart, FaFire, FaCircle } from "react-icons/fa";
+import SearchInput from "../components/ui/SearchInput";
 
 interface Event {
   id: string;
@@ -18,28 +20,76 @@ interface Event {
 const EventsList = () => {
   const navigate = useNavigate();
   const { GetPaginatedData } = useApi();
+  const { authToken } = useContext(AuthContext) || {};
   const [events, setEvents] = useState<Event[]>([]);
+  const [, setAllEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [nextPage, setNextPage] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
 
-  const fetchEvents = async () => {
+  const fetchEvents = async (isLoadMore = false) => {
     try {
-      setLoading(true);
-      const result = await GetPaginatedData("events", { 
-        search: searchQuery.trim() 
-      });
-      setEvents(result.data || []);
+      if (!isLoadMore) {
+        setLoading(true);
+        setEvents([]);
+      } else {
+        setLoadingMore(true);
+      }
+      
+      let result;
+      if (isLoadMore && nextPage) {
+        // Use the full URL for next page
+        const response = await fetch(nextPage, {
+          headers: {
+            'Authorization': `Bearer ${authToken?.access}`
+          }
+        });
+        result = await response.json();
+        result = {
+          data: result.results,
+          nextPage: result.next
+        };
+      } else {
+        result = await GetPaginatedData("events", { 
+          search: searchQuery.trim()
+        });
+      }
+      
+      if (isLoadMore) {
+        setEvents(prev => [...prev, ...(result.data || [])]);
+      } else {
+        setEvents(result.data || []);
+        if (!searchQuery.trim()) {
+          setAllEvents(result.data || []);
+        }
+      }
+      
+      setNextPage(result.nextPage);
+      setHasMore(!!result.nextPage);
     } catch (error) {
       console.error("Failed to fetch events", error);
-      setEvents([]);
+      if (!isLoadMore) setEvents([]);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const loadMoreEvents = () => {
+    if (hasMore && !loadingMore) {
+      fetchEvents(true);
     }
   };
 
   useEffect(() => {
     fetchEvents();
   }, [searchQuery]);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -64,17 +114,12 @@ const EventsList = () => {
   return (
     <AppLayout title="Events" showBack>
       
-      {/* Search Bar */}
       <div className="mb-3">
-        <div className="input-group input-group-lg">
-          <span className="input-group-text bg-white"><FaSearch /></span>
-          <input
-            className="form-control"
-            placeholder="Search events..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+        <SearchInput
+          placeholder="Search events..."
+          value={searchQuery}
+          onChange={handleSearch}
+        />
       </div>
 
       {/* Create Event Button */}
@@ -186,29 +231,29 @@ const EventsList = () => {
         </div>
       )}
 
-      {/* Summary */}
-      {events.length > 0 && (
-        <div className="border-top pt-3 mt-3">
-          <div className="row text-center">
-            <div className="col-4">
-              <div className="fw-bold">{events.length}</div>
-              <small className="text-muted">Total Events</small>
-            </div>
-            <div className="col-4">
-              <div className="fw-bold">
-                {events.filter(e => e.event_type === "chandlo").length}
-              </div>
-              <small className="text-muted">Chandlo</small>
-            </div>
-            <div className="col-4">
-              <div className="fw-bold">
-                {events.filter(e => e.event_type === "marriage").length}
-              </div>
-              <small className="text-muted">Marriage</small>
-            </div>
-          </div>
+      {/* Load More Button */}
+      {hasMore && events.length > 0 && (
+        <div className="text-center mt-3">
+          <button
+            className="btn btn-outline-danger rounded-pill"
+            onClick={loadMoreEvents}
+            disabled={loadingMore}
+          >
+            {loadingMore ? (
+              <>
+                <div className="spinner-border spinner-border-sm me-2" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+                Loading...
+              </>
+            ) : (
+              "Load More Events"
+            )}
+          </button>
         </div>
       )}
+
+     
     </AppLayout>
   );
 };

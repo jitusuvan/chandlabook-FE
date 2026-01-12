@@ -34,9 +34,10 @@ const FormInput = ({
         maxLength={maxLength}
         onChange={onChange}
         placeholder={placeholder}
-        className={`form-control form-control-lg rounded-4 ${
+        className={`form-control rounded-4 ${
           error ? "is-invalid" : ""
         }`}
+        style={{ fontSize: '14px' }}
       />
 
       {error && <div className="invalid-feedback">{error}</div>}

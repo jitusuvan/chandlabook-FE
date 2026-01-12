@@ -154,6 +154,45 @@ const InvitationGenerator = () => {
     toast.success('PDF ready for download!');
   };
 
+  const generateAndShare = () => {
+  // 1️⃣ generate image (same as your downloadAsImage)
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx || !eventData) return;
+
+  canvas.width = 400;
+  canvas.height = 600;
+
+  const gradient = ctx.createLinearGradient(0, 0, 400, 600);
+  gradient.addColorStop(0, '#ff6b6b');
+  gradient.addColorStop(1, '#ffd93d');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 400, 600);
+
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 22px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('🎉 You’re Invited!', 200, 80);
+  ctx.fillText(eventData.name, 200, 140);
+
+  // 2️⃣ auto download
+  const dataUrl = canvas.toDataURL('image/png');
+  const link = document.createElement('a');
+  link.href = dataUrl;
+  link.download = 'invitation.png';
+  link.click();
+
+  // 3️⃣ open WhatsApp with message
+  const message = `🎉 You're invited to ${eventData.name} 🎉
+Please see the invitation image above ❤️`;
+  window.open(
+    `https://wa.me/?text=${encodeURIComponent(message)}`,
+    '_blank'
+  );
+
+  toast.success('Image ready! Attach it in WhatsApp & send ✅');
+};
+
   const downloadAsImage = () => {
     if (!cardRef.current) return;
     
@@ -351,7 +390,7 @@ With love and blessings`;
           <div className="col-4">
             <button
               className="btn btn-success w-100 rounded-4"
-              onClick={() => shareToWhatsApp()}
+              onClick={() => generateAndShare()}
             >
               <FaWhatsapp className="me-1" />
               Share

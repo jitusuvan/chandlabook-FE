@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import AppLayout from '../layouts/AppLayout';
 import useApi from '../hooks/useApi';
 import { FaEdit, FaTrash, FaRupeeSign, FaFileInvoiceDollar } from 'react-icons/fa';
+import { capitalizeFirst } from '../utils/textUtils';
+import FormInput from '../components/ui/FormInput';
 
 interface Expense {
   id: string;
@@ -175,16 +177,12 @@ const ExpenseManagement = () => {
               {editingExpense ? 'Edit Expense' : 'Add New Expense'}
             </h6>
               
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Expense Name *</label>
-              <input
-                type="text"
-                className="form-control form-control-lg rounded-4"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                placeholder="e.g., Decoration, Catering, etc."
-              />
-            </div>
+            <FormInput
+              label="Expense Name *"
+              placeholder="e.g., Decoration, Catering, etc."
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: capitalizeFirst(e.target.value)})}
+            />
 
             <div className="mb-3">
               <label className="form-label fw-semibold">Amount *</label>
@@ -207,7 +205,7 @@ const ExpenseManagement = () => {
                 className="form-control rounded-4"
                 rows={3}
                 value={formData.notes}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                onChange={(e) => setFormData({...formData, notes: capitalizeFirst(e.target.value)})}
                 placeholder="Additional details (optional)"
               />
             </div>
