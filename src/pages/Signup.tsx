@@ -52,7 +52,7 @@ const Signup = () => {
   groups: [],  // sending empty array here
 };
     try {
-      const apiUrl = global.api.host + global.api.user;
+      const apiUrl = global.api.host + global.api.createUser;
       await axios.post(apiUrl, payload);
 
       toast.success("Account created successfully!");

@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect,useContext } from "react";
+import AuthContext from "../contexts/AuthContext";
 
+import useApi from "../hooks/useApi";
 type AppLayoutProps = {
   title: string;
   subtitle?: string;
@@ -10,9 +13,38 @@ type AppLayoutProps = {
   onBackClick?: () => void;
 };
 
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+}
 const AppLayout = ({ title, subtitle, showBack, showProfile, summaryCards, children, onBackClick }: AppLayoutProps) => {
   const navigate = useNavigate();
+  
+  const { Get } = useApi();
+    const { user, } = useContext(AuthContext);
+    const [loading, setLoading] = useState(true);
+const [userData, setUserData] = useState<User | null>(null);
+ 
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const data = await Get("userProfile", user?.user_id);
+        setUserData(data);
+      } catch (error) {
+        console.error("Failed to fetch user data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (user?.user_id) {
+      fetchUserData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <div className="vh-100 bg-light d-flex justify-content-center px-2 px-md-0">
       <div
@@ -63,18 +95,21 @@ const AppLayout = ({ title, subtitle, showBack, showProfile, summaryCards, child
               className="position-absolute end-0 top-0 mt-3 me-3"
               onClick={() => navigate("/profile")}
               style={{
-                width: 20,
-                height: 20,
-                borderRadius: "50%",
-                background: "#000000",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
+              width: 24,
+              height: 24,
+              borderRadius: "50%",
+              background: "#dc3545",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
+              fontSize: "1rem",
+              fontWeight: "bold",
+              cursor:"pointer"
+            }}
             >
-              {/* {username} */}
+               {userData?.first_name?.charAt(0) || "U"}
+            
             </div>
           )}
 
