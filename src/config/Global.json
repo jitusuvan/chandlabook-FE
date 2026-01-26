@@ -15,6 +15,8 @@
     "guestRecord":"/api/v1/guestRecord/",
     "events":"/api/v1/events/",
     "dashboard":"/api/v1/dashboard/",
-    "expense":"/api/v1/expense/"
+    "expense":"/api/v1/expense/",
+    "today":"/api/v1/guestRecord/today/",
+    "upcoming":"/api/v1/guestRecord/upcoming/"
   }
 }
