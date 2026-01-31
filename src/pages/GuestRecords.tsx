@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import useApi from "../hooks/useApi";
 import { confirmDelete } from "../utils/sweetAlert";
+import { FaEdit, FaTrash, FaRupeeSign, FaCalendarAlt, FaCheckCircle, FaClock } from "react-icons/fa";
 
 interface Guest {
   id: string;
@@ -20,14 +21,25 @@ interface GuestRecord {
   event: string;
   bride_groom: string | null;
   guest: string;
+  event_type?: string;
+  event_name?: string;
+  pay_later?: boolean;
+  payment_status?: string;
+}
+
+interface GuestSummary {
+  aavel_total: number;
+  mukel_total: number;
+  difference: number;
 }
 
 interface GuestRecordsProps {
   guest: Guest;
+  summary: GuestSummary | null;
 }
 
-const GuestRecords = ({ guest }: GuestRecordsProps) => {
-  const { GetPaginatedData, Patch, Delete } = useApi();
+const GuestRecords = ({ guest, summary }: GuestRecordsProps) => {
+  const { GetPaginatedData, Patch, Delete, Put } = useApi();
   const [records, setRecords] = useState<GuestRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -123,6 +135,22 @@ const GuestRecords = ({ guest }: GuestRecordsProps) => {
     }
   };
 
+  const handleTogglePayLater = async (recordId: string, currentPayLater: boolean) => {
+    try {
+      await Put("guestRecord", recordId, { pay_later: !currentPayLater });
+      
+      setRecords(records.map(record => 
+        record.id === recordId 
+          ? { ...record, pay_later: !currentPayLater }
+          : record
+      ));
+      
+      toast.success(`Payment status updated to ${!currentPayLater ? 'Pay Later' : 'Paid'}!`);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update payment status");
+    }
+  };
+
   const handleDeleteRecord = async (recordId: string) => {
     const confirmed = await confirmDelete("This record will be permanently deleted!");
     if (!confirmed) return;
@@ -147,42 +175,102 @@ const GuestRecords = ({ guest }: GuestRecordsProps) => {
 
   return (
     <>
+      {summary && (
+        <div className="row g-2 mb-3 mx-1">
+          <div className="col-4">
+            <div className="card text-center bg-light border-0 shadow-sm">
+              <div className="card-body p-2 py-3">
+                <small className="text-muted d-block mb-1">Aavel</small>
+                <div className="fw-bold text-success fs-6">₹{summary.aavel_total}</div>
+              </div>
+            </div>
+          </div>
+          <div className="col-4">
+            <div className="card text-center bg-light border-0 shadow-sm">
+              <div className="card-body p-2 py-3">
+                <small className="text-muted d-block mb-1">Mukel</small>
+                <div className="fw-bold text-danger fs-6">₹{summary.mukel_total}</div>
+              </div>
+            </div>
+          </div>
+          <div className="col-4">
+            <div className="card text-center bg-light border-0 shadow-sm">
+              <div className="card-body p-2 py-3">
+                <small className="text-muted d-block mb-1">Difference</small>
+                <div className="fw-bold text-primary fs-6">₹{summary.difference}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {records.map((record) => (
         <div
           key={record.id}
-          className="border rounded p-3 mb-3 shadow-sm"
-          style={{ background: "#fff" }}
+          className="card border-0 shadow-sm rounded-4 mb-3"
         >
-          <div className="d-flex justify-content-between align-items-start mb-2">
-            <div>
-              <h6 className="mb-0 fw-bold">₹{record.amount}</h6>
-              <small className="text-muted">{new Date(record.date).toLocaleDateString()}</small>
+          <div className="card-body p-3">
+            <div className="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <div className="d-flex align-items-center mb-1">
+                  <FaRupeeSign className="text-success me-1" size={14} />
+                  <h6 className="mb-0 fw-bold text-success">{record.amount}</h6>
+                  {record.pay_later && (
+                    <span className="badge bg-warning text-dark ms-2 rounded-pill">
+                      <FaClock className="me-1" size={10} />
+                      Pay Later
+                    </span>
+                  )}
+                </div>
+                <div className="d-flex align-items-center text-muted small">
+                  <FaCalendarAlt className="me-1" size={10} />
+                  <span>{new Date(record.date).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <span className={`badge rounded-pill ${record.select === "aavel" ? "bg-success" : "bg-danger"}`}>
+                {record.select === "aavel" ? "Aavel" : "Mukel"}
+              </span>
             </div>
-            <span className={`badge ${record.select === "aavel" ? "bg-success" : "bg-danger"}`}>
-              {record.select === "aavel" ? "Aavel" : "Mukel"}
-            </span>
-          </div>
 
-          <div className="mb-2">
-            <small>
-              <strong>Event:</strong> {record.event === "chandlo" ? "Chandlo" : "Marriage"}
-              {record.bride_groom && ` - ${record.bride_groom}`}
-            </small>
-          </div>
-
-          <div className="d-flex gap-2 flex-wrap">
-            <button 
-              className="btn btn-outline-primary btn-sm flex-fill"
-              onClick={() => handleEditRecord(record)}
-            >
-              Edit
-            </button>
-            <button 
-              className="btn btn-outline-danger btn-sm flex-fill"
-              onClick={() => handleDeleteRecord(record.id)}
-            >
-              Delete
-            </button>
+            <div className="mb-3">
+              <small className="text-muted d-block">
+                <strong>Event:</strong> {record.event_type === "chandlo" ? "Chandlo" : "Marriage"}
+                {record.bride_groom && ` - ${record.bride_groom}`}
+              </small>
+              {record.event_name && (
+                <small className="text-muted d-block">
+                  <strong>Event Name:</strong> {record.event_name}
+                </small>
+              )}
+            </div>
+            
+            <div className="d-flex gap-2">
+              <button 
+                className={`btn btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center ${
+                  record.pay_later ? 'btn-warning' : 'btn-success'
+                }`}
+                onClick={() => handleTogglePayLater(record.id, record.pay_later || false)}
+              >
+                {record.pay_later ? (
+                  <><FaCheckCircle className="me-1" size={12} />Mark as Paid</>
+                ) : (
+                  <><FaClock className="me-1" size={12} />Mark Pay Later</>
+                )}
+              </button>
+              <button 
+                className="btn btn-outline-primary btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center"
+                onClick={() => handleEditRecord(record)}
+              >
+                <FaEdit className="me-1" size={12} />
+                <span>Edit</span>
+              </button>
+              <button 
+                className="btn btn-outline-danger btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center"
+                onClick={() => handleDeleteRecord(record.id)}
+              >
+                <FaTrash className="me-1" size={12} />
+                <span>Delete</span>
+              </button>
+            </div>
           </div>
         </div>
       ))}

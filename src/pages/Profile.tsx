@@ -20,7 +20,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const data = await Get("user", user?.user_id);
+        const data = await Get("userProfile", user?.user_id);
         setUserData(data);
       } catch (error) {
         console.error("Failed to fetch user data", error);
@@ -68,30 +68,11 @@ const Profile = () => {
           <h5 className="fw-bold mb-1">
             {userData?.first_name} {userData?.last_name}
           </h5>
-          <small className="text-muted">{userData?.email}</small>
+          {/* <small className="text-muted">{userData?.email}</small> */}
         </div>
 
-        <div className="mb-3">
-          <label className="form-label fw-semibold">Username</label>
-          <input
-            type="text"
-            className="form-control"
-            value={userData?.username || ""}
-            disabled
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label fw-semibold">Email</label>
-          <input
-            type="email"
-            className="form-control"
-            value={userData?.email || ""}
-            disabled
-          />
-        </div>
-
-        <div className="row g-3 mb-3">
+      
+         <div className="row g-3 mb-3">
           <div className="col-6">
             <label className="form-label fw-semibold">First Name</label>
             <input
@@ -111,6 +92,18 @@ const Profile = () => {
             />
           </div>
         </div>
+
+        <div className="mb-3">
+          <label className="form-label fw-semibold">Email</label>
+          <input
+            type="email"
+            className="form-control"
+            value={userData?.email || ""}
+            disabled
+          />
+        </div>
+
+       
       </div>
 
       <button

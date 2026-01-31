@@ -6,7 +6,8 @@ import AuthContext from "../contexts/AuthContext";
 import { validateForm } from "../utils/validation";
 import type { ValidationErrors } from "../utils/validation";
 import toast from "react-hot-toast";
-
+import headerImg from "../assets/image/hederimage.png";
+import FormInput from "../components/ui/FormInput"; 
 const Login = () => {
   const { loginUser, loading } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -47,23 +48,38 @@ const Login = () => {
 
   return (
     <AppLayout
-      title="Welcome Back"
-      subtitle="Sign in to continue"
+      title="Login"
     >
+      <div>
+          <div className="mb-4">
+    <img
+      src={headerImg}
+      alt="login header"
+      className="w-100"
+      style={{
+        height: 200,
+        objectFit: "cover",
+        borderRadius: "0 0 20px 20px",
+      }}
+    />
+  </div>
+       <div className="text-center mb-4">
+    <h2 className="fw-bold mb-1">Welcome back 👋</h2>
+    <p className="text-muted" style={{ fontSize: 14 }}>
+      Login to continue managing your records
+    </p>
+  </div>
+  </div>
       <form onSubmit={handleSubmit}>
         {/* Email / Phone */}
-        <div className="mb-3">
-          <label className="form-label">Email / Phone</label>
-          <input
-            type="text"
-            name="username"
-            className={`form-control form-control-lg ${errors.username ? 'is-invalid' : ''}`}
-            placeholder="Enter your email or phone"
-            maxLength={50}
-            required
-          />
-          {errors.username && <div className="invalid-feedback">{errors.username}</div>}
-        </div>
+
+        <FormInput
+          label="Email / Phone"
+          name="username"
+          placeholder="Enter your email or phone"
+          maxLength={50}
+          error={errors.username}
+        />
 
         {/* Password */}
         <div className="mb-3">

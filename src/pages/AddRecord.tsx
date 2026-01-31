@@ -4,6 +4,10 @@ import AppLayout from "../layouts/AppLayout";
 import useApi from "../hooks/useApi";
 import { validateForm, commonRules } from "../utils/validation";
 import type { ValidationErrors } from "../utils/validation";
+import { capitalizeFirst } from "../utils/textUtils";
+import FormInput from "../components/ui/FormInput";
+import SearchInput from "../components/ui/SearchInput";
+import PaginatedSearchSelect from "../components/ui/PaginatedSearchSelect";
 
 interface Guest {
   id: string;
@@ -13,6 +17,16 @@ interface Guest {
   mobile_no: string;
   city: string;
 }
+interface Event {
+  id: string;
+  name: string;
+  date: string;
+  event_type: string;
+  select_type: string;
+  bride_groom_name?: string;
+  total_amount?: number;
+}
+
 
 const AddRecord = () => {
   const { Post, GetPaginatedData } = useApi();
@@ -35,8 +49,23 @@ const AddRecord = () => {
       select: "mukel",
       event: "chandlo",
       bride_groom: "",
+      pay_later: false,
     },
   ]);
+const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
+const handleSelectEvent = (event: Event) => {
+  setSelectedEvent(event);
+  // Auto-fill record data from event
+  setRecords([{
+    date: event.date,
+    amount: "",
+    select: event.select_type,
+    event: event.event_type,
+    bride_groom: event.bride_groom_name || "",
+    pay_later: false,
+  }]);
+};
 
   const addRecord = () => {
     setRecords([
@@ -47,6 +76,7 @@ const AddRecord = () => {
         select: "mukel",
         event: "chandlo",
         bride_groom: "",
+        pay_later: false,
       },
     ]);
   };
@@ -57,7 +87,11 @@ const AddRecord = () => {
 
   const updateRecord = (index: number, field: string, value: string) => {
     const newRecords = [...records];
-    newRecords[index][field as keyof typeof newRecords[0]] = value as never;
+    if (field === 'pay_later') {
+      newRecords[index][field as keyof typeof newRecords[0]] = (value === 'true') as never;
+    } else {
+      newRecords[index][field as keyof typeof newRecords[0]] = value as never;
+    }
     setRecords(newRecords);
   };
 
@@ -141,13 +175,24 @@ const AddRecord = () => {
       await Promise.all(
         records.map((record) => {
           const payload = {
-            guest: guestId,
-            date: record.date,
-            amount: record.amount,
-            select: record.select,
-            event: record.event,
-            ...(record.event === "marriage" && { bride_groom: record.bride_groom }),
-          };
+  guest: guestId,
+  event: selectedEvent?.id || null, // Add event FK
+  date: record.date,
+  amount: record.amount,
+  select: record.select,
+  event_type: record.event, // Changed from 'event' to 'event_type'
+  pay_later: record.pay_later,
+  ...(record.event === "marriage" && { bride_groom: record.bride_groom }),
+};
+
+          // const payload = {
+          //   guest: guestId,
+          //   date: record.date,
+          //   amount: record.amount,
+          //   select: record.select,
+          //   event: record.event,
+          //   ...(record.event === "marriage" && { bride_groom: record.bride_groom }),
+          // };
           return Post("guestRecord", payload);
         })
       );
@@ -157,7 +202,7 @@ const AddRecord = () => {
       setSelectedGuest(null);
       setSearchQuery("");
       setGuestData({ first_name: "", last_name: "", surname: "", mobile_no: "", city: "" });
-      setRecords([{ date: "", amount: "", select: "mukel", event: "chandlo", bride_groom: "" }]);
+      setRecords([{ date: "", amount: "", select: "mukel", event: "chandlo", bride_groom: "", pay_later: false }]);
       setErrors({});
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to create guest/record");
@@ -171,15 +216,11 @@ const AddRecord = () => {
       {!showGuestForm && !selectedGuest && (
         <div className="mb-4">
           <label className="form-label fw-semibold">Search Guest</label>
-          <div className="input-group input-group-lg">
-            <span className="input-group-text bg-white">🔍</span>
-            <input
-              className="form-control"
-              placeholder="Search by name..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-            />
-          </div>
+          <SearchInput
+            placeholder="Search by name..."
+            value={searchQuery}
+            onChange={handleSearch}
+          />
 
           {/* Search Results */}
           {searchQuery.trim().length >= 2 && (
@@ -240,6 +281,43 @@ const AddRecord = () => {
             </div>
           </div>
 
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Select Event (Auto-fill Details)</label>
+            <PaginatedSearchSelect
+              api="events"
+              getOptionLabel={(event) => `${event.name} - ${new Date(event.date).toLocaleDateString()}`}
+              onSelect={handleSelectEvent}
+              value={selectedEvent}
+              placeholder="Search and select event..."
+            />
+          </div>
+
+          {/* Selected Event Display */}
+          {selectedEvent && (
+            <div className="border rounded p-3 mb-3" style={{ background: "#e8f5e8" }}>
+              <div className="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 className="fw-bold mb-1 text-success">📅 {selectedEvent.name}</h6>
+                  <small className="text-muted">
+                    {new Date(selectedEvent.date).toLocaleDateString()} • 
+                    {selectedEvent.event_type} • {selectedEvent.select_type}
+                    {selectedEvent.bride_groom_name && ` • ${selectedEvent.bride_groom_name}`}
+                    {selectedEvent.total_amount && ` • ₹${selectedEvent.total_amount}`}
+                  </small>
+                </div>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => {
+                    setSelectedEvent(null);
+                    setRecords([{ date: "", amount: "", select: "mukel", event: "chandlo", bride_groom: "", pay_later: false }]);
+                  }}
+                >
+                  Change
+                </button>
+              </div>
+            </div>
+          )}
+
           <h6 className="fw-bold mb-3">{records.length > 1 ? "Multiple Records" : "Single Record"}</h6>
 
           {/* 📅 RECORD DETAILS */}
@@ -258,58 +336,131 @@ const AddRecord = () => {
                 )}
               </div>
 
-              <div className="row g-3 mb-3">
-                <div className="col-6">
-                  <input
-                    type="date"
-                    className="form-control form-control-lg"
-                    value={record.date}
-                    onChange={(e) => updateRecord(idx, "date", e.target.value)}
-                  />
-                </div>
-                <div className="col-6">
+              {/* Only show amount field if event is selected, otherwise show all fields */}
+              {selectedEvent ? (
+                <>
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">Amount</label>
                   <input
                     type="number"
-                    className="form-control form-control-lg"
+                    className={`form-control form-control-lg ${errors[`amount_${idx}`] ? 'is-invalid' : ''}`}
                     placeholder="Enter amount"
+                    min="1"
+                    max="1000000"
+                    step="0.01"
                     value={record.amount}
                     onChange={(e) => updateRecord(idx, "amount", e.target.value)}
                   />
+                  {errors[`amount_${idx}`] && <div className="invalid-feedback">{errors[`amount_${idx}`]}</div>}
                 </div>
-              </div>
-
-              <div className="row g-3 mb-3">
-                <div className="col-6">
-                  <select
-                    className="form-select form-select-lg"
-                    value={record.select}
-                    onChange={(e) => updateRecord(idx, "select", e.target.value)}
-                  >
-                    <option value="mukel">Mukel</option>
-                    <option value="aavel">Aavel</option>
-                  </select>
-                </div>
-                <div className="col-6">
-                  <select
-                    className="form-select form-select-lg"
-                    value={record.event}
-                    onChange={(e) => updateRecord(idx, "event", e.target.value)}
-                  >
-                    <option value="chandlo">Chandlo</option>
-                    <option value="marriage">Marriage</option>
-                  </select>
-                </div>
-              </div>
-
-              {record.event === "marriage" && (
-                <div className="mb-3">
+                
+                <div className="form-check">
                   <input
-                    className="form-control form-control-lg"
-                    placeholder="Bride/Groom name"
-                    value={record.bride_groom}
-                    onChange={(e) => updateRecord(idx, "bride_groom", e.target.value)}
+                    className="form-check-input"
+                    type="checkbox"
+                    id={`payLaterEvent_${idx}`}
+                    checked={record.pay_later}
+                    onChange={(e) => updateRecord(idx, "pay_later", e.target.checked.toString())}
                   />
+                  <label className="form-check-label" htmlFor={`payLaterEvent_${idx}`}>
+                    Pay Later
+                  </label>
                 </div>
+                </>
+              ) : (
+                <>
+                  <div className="row g-3 mb-3">
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Date</label>
+                      <input
+                        type="date"
+                        className={`form-control form-control-lg ${errors[`date_${idx}`] ? 'is-invalid' : ''}`}
+                        value={record.date}
+                        onChange={(e) => updateRecord(idx, "date", e.target.value)}
+                      />
+                      {errors[`date_${idx}`] && <div className="invalid-feedback">{errors[`date_${idx}`]}</div>}
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Amount</label>
+                      <input
+                        type="number"
+                        className={`form-control form-control-lg ${errors[`amount_${idx}`] ? 'is-invalid' : ''}`}
+                        placeholder="Enter amount"
+                        min="1"
+                        max="1000000"
+                        step="0.01"
+                        value={record.amount}
+                        onChange={(e) => updateRecord(idx, "amount", e.target.value)}
+                      />
+                      {errors[`amount_${idx}`] && <div className="invalid-feedback">{errors[`amount_${idx}`]}</div>}
+                    </div>
+                  </div>
+
+                  <div className="form-check mb-3">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id={`payLaterManual_${idx}`}
+                      checked={record.pay_later}
+                      onChange={(e) => updateRecord(idx, "pay_later", e.target.checked.toString())}
+                    />
+                    <label className="form-check-label" htmlFor={`payLaterManual_${idx}`}>
+                      Pay Later
+                    </label>
+                  </div>
+
+                  <div className="row g-3 mb-3">
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Select Type</label>
+                      <select
+                        className="form-select form-select-lg"
+                        value={record.select}
+                        onChange={(e) => updateRecord(idx, "select", e.target.value)}
+                      >
+                        <option value="mukel">Mukel</option>
+                        <option value="aavel">Aavel</option>
+                      </select>
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Event Type</label>
+                      <select
+                        className="form-select form-select-lg"
+                        value={record.event}
+                        onChange={(e) => updateRecord(idx, "event", e.target.value)}
+                      >
+                        <option value="chandlo">Chandlo</option>
+                        <option value="marriage">Marriage</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {record.event === "marriage" && (
+                    <div className="mb-3">
+                      <label className="form-label fw-semibold">Bride/Groom Name</label>
+                      <input
+                        className={`form-control form-control-lg ${errors[`bride_groom_${idx}`] ? 'is-invalid' : ''}`}
+                        placeholder="Bride/Groom name"
+                        maxLength={100}
+                        value={record.bride_groom}
+                        onChange={(e) => updateRecord(idx, "bride_groom", e.target.value)}
+                      />
+                      {errors[`bride_groom_${idx}`] && <div className="invalid-feedback">{errors[`bride_groom_${idx}`]}</div>}
+                    </div>
+                  )}
+                  
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id={`payLater_${idx}`}
+                      checked={record.pay_later}
+                      onChange={(e) => updateRecord(idx, "pay_later", e.target.checked.toString())}
+                    />
+                    <label className="form-check-label" htmlFor={`payLater_${idx}`}>
+                      Pay Later
+                    </label>
+                  </div>
+                </>
               )}
             </div>
           ))}
@@ -338,56 +489,93 @@ const AddRecord = () => {
 
           <div className="row g-3 mb-3">
             <div className="col-6">
-              <input
-                className={`form-control form-control-lg ${errors.first_name ? 'is-invalid' : ''}`}
+              <FormInput
                 placeholder="First name"
+                name="first_name"
                 maxLength={50}
                 value={guestData.first_name}
-                onChange={(e) => setGuestData({ ...guestData, first_name: e.target.value })}
+                onChange={(e) => setGuestData({ ...guestData, first_name: capitalizeFirst(e.target.value) })}
+                error={errors.first_name}
               />
-              {errors.first_name && <div className="invalid-feedback">{errors.first_name}</div>}
             </div>
             <div className="col-6">
-              <input
-                className={`form-control form-control-lg ${errors.last_name ? 'is-invalid' : ''}`}
+              <FormInput
                 placeholder="Last name"
+                name="last_name"
                 maxLength={50}
                 value={guestData.last_name}
-                onChange={(e) => setGuestData({ ...guestData, last_name: e.target.value })}
+                onChange={(e) => setGuestData({ ...guestData, last_name: capitalizeFirst(e.target.value) })}
+                error={errors.last_name}
               />
-              {errors.last_name && <div className="invalid-feedback">{errors.last_name}</div>}
             </div>
             <div className="col-6">
-              <input
-                className={`form-control form-control-lg ${errors.surname ? 'is-invalid' : ''}`}
+              <FormInput
                 placeholder="Surname"
+                name="surname"
                 maxLength={50}
                 value={guestData.surname}
-                onChange={(e) => setGuestData({ ...guestData, surname: e.target.value })}
+                onChange={(e) => setGuestData({ ...guestData, surname: capitalizeFirst(e.target.value) })}
+                error={errors.surname}
               />
-              {errors.surname && <div className="invalid-feedback">{errors.surname}</div>}
             </div>
             <div className="col-6">
-              <input
-                className={`form-control form-control-lg ${errors.mobile_no ? 'is-invalid' : ''}`}
+              <FormInput
                 placeholder="Mobile number"
+                name="mobile_no"
                 maxLength={15}
                 value={guestData.mobile_no}
                 onChange={(e) => setGuestData({ ...guestData, mobile_no: e.target.value })}
+                error={errors.mobile_no}
               />
-              {errors.mobile_no && <div className="invalid-feedback">{errors.mobile_no}</div>}
             </div>
             <div className="col-6">
-              <input
-                className={`form-control form-control-lg ${errors.city ? 'is-invalid' : ''}`}
+              <FormInput
                 placeholder="City"
+                name="city"
                 maxLength={50}
                 value={guestData.city}
-                onChange={(e) => setGuestData({ ...guestData, city: e.target.value })}
+                onChange={(e) => setGuestData({ ...guestData, city: capitalizeFirst(e.target.value) })}
+                error={errors.city}
               />
-              {errors.city && <div className="invalid-feedback">{errors.city}</div>}
             </div>
           </div>
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Select Event (Auto-fill Details)</label>
+            <PaginatedSearchSelect
+              api="events"
+              getOptionLabel={(event) => `${event.name} - ${new Date(event.date).toLocaleDateString()}`}
+              onSelect={handleSelectEvent}
+              value={selectedEvent}
+              placeholder="Search and select event..."
+            />
+          </div>
+
+          {/* Selected Event Display */}
+          {selectedEvent && (
+            <div className="border rounded p-3 mb-3" style={{ background: "#e8f5e8" }}>
+              <div className="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 className="fw-bold mb-1 text-success">📅 {selectedEvent.name}</h6>
+                  <small className="text-muted">
+                    {new Date(selectedEvent.date).toLocaleDateString()} • 
+                    {selectedEvent.event_type} • {selectedEvent.select_type}
+                    {selectedEvent.bride_groom_name && ` • ${selectedEvent.bride_groom_name}`}
+                    {selectedEvent.total_amount && ` • ₹${selectedEvent.total_amount}`}
+                  </small>
+                </div>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => {
+                    setSelectedEvent(null);
+                    setRecords([{ date: "", amount: "", select: "mukel", event: "chandlo", bride_groom: "", pay_later: false }]);
+                  }}
+                >
+                  Change
+                </button>
+              </div>
+            </div>
+          )}
+
 
           <h6 className="fw-bold mb-3 mt-4">{records.length > 1 ? "Multiple Records" : "Single Record"}</h6>
 
@@ -407,17 +595,10 @@ const AddRecord = () => {
                 )}
               </div>
 
-              <div className="row g-3 mb-3">
-                <div className="col-6">
-                  <input
-                    type="date"
-                    className={`form-control form-control-lg ${errors[`date_${idx}`] ? 'is-invalid' : ''}`}
-                    value={record.date}
-                    onChange={(e) => updateRecord(idx, "date", e.target.value)}
-                  />
-                  {errors[`date_${idx}`] && <div className="invalid-feedback">{errors[`date_${idx}`]}</div>}
-                </div>
-                <div className="col-6">
+              {/* Only show amount field if event is selected, otherwise show all fields */}
+              {selectedEvent ? (
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">Amount</label>
                   <input
                     type="number"
                     className={`form-control form-control-lg ${errors[`amount_${idx}`] ? 'is-invalid' : ''}`}
@@ -430,53 +611,101 @@ const AddRecord = () => {
                   />
                   {errors[`amount_${idx}`] && <div className="invalid-feedback">{errors[`amount_${idx}`]}</div>}
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="row g-3 mb-3">
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Date</label>
+                      <input
+                        type="date"
+                        className={`form-control form-control-lg ${errors[`date_${idx}`] ? 'is-invalid' : ''}`}
+                        value={record.date}
+                        onChange={(e) => updateRecord(idx, "date", e.target.value)}
+                      />
+                      {errors[`date_${idx}`] && <div className="invalid-feedback">{errors[`date_${idx}`]}</div>}
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Amount</label>
+                      <input
+                        type="number"
+                        className={`form-control form-control-lg ${errors[`amount_${idx}`] ? 'is-invalid' : ''}`}
+                        placeholder="Enter amount"
+                        min="1"
+                        max="1000000"
+                        step="0.01"
+                        value={record.amount}
+                        onChange={(e) => updateRecord(idx, "amount", e.target.value)}
+                      />
+                      {errors[`amount_${idx}`] && <div className="invalid-feedback">{errors[`amount_${idx}`]}</div>}
+                    </div>
+                  </div>
 
-              <div className="row g-3 mb-3">
-                <div className="col-6">
-                  <select
-                    className="form-select form-select-lg"
-                    value={record.select}
-                    onChange={(e) => updateRecord(idx, "select", e.target.value)}
-                  >
-                    <option value="mukel">Mukel</option>
-                    <option value="aavel">Aavel</option>
-                  </select>
-                </div>
-                <div className="col-6">
-                  <select
-                    className="form-select form-select-lg"
-                    value={record.event}
-                    onChange={(e) => updateRecord(idx, "event", e.target.value)}
-                  >
-                    <option value="chandlo">Chandlo</option>
-                    <option value="marriage">Marriage</option>
-                  </select>
-                </div>
-              </div>
+                  <div className="form-check mb-3">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id={`payLaterManual_${idx}`}
+                      checked={record.pay_later}
+                      onChange={(e) => updateRecord(idx, "pay_later", e.target.checked.toString())}
+                    />
+                    <label className="form-check-label" htmlFor={`payLaterManual_${idx}`}>
+                      Pay Later
+                    </label>
+                  </div>
 
-              {record.event === "marriage" && (
-                <div className="mb-3">
-                  <input
-                    className={`form-control form-control-lg ${errors[`bride_groom_${idx}`] ? 'is-invalid' : ''}`}
-                    placeholder="Bride/Groom name"
-                    maxLength={100}
-                    value={record.bride_groom}
-                    onChange={(e) => updateRecord(idx, "bride_groom", e.target.value)}
-                  />
-                  {errors[`bride_groom_${idx}`] && <div className="invalid-feedback">{errors[`bride_groom_${idx}`]}</div>}
-                </div>
+                  <div className="row g-3 mb-3">
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Select Type</label>
+                      <select
+                        className="form-select form-select-lg"
+                        value={record.select}
+                        onChange={(e) => updateRecord(idx, "select", e.target.value)}
+                      >
+                        <option value="mukel">Mukel</option>
+                        <option value="aavel">Aavel</option>
+                      </select>
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label fw-semibold">Event Type</label>
+                      <select
+                        className="form-select form-select-lg"
+                        value={record.event}
+                        onChange={(e) => updateRecord(idx, "event", e.target.value)}
+                      >
+                        <option value="chandlo">Chandlo</option>
+                        <option value="marriage">Marriage</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {record.event === "marriage" && (
+                    <div className="mb-3">
+                      <label className="form-label fw-semibold">Bride/Groom Name</label>
+                      <input
+                        className={`form-control form-control-lg ${errors[`bride_groom_${idx}`] ? 'is-invalid' : ''}`}
+                        placeholder="Bride/Groom name"
+                        maxLength={100}
+                        value={record.bride_groom}
+                        onChange={(e) => updateRecord(idx, "bride_groom", e.target.value)}
+                      />
+                      {errors[`bride_groom_${idx}`] && <div className="invalid-feedback">{errors[`bride_groom_${idx}`]}</div>}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           ))}
 
-          <button
-            type="button"
-            className="btn btn-outline-danger rounded-pill mb-3"
-            onClick={addRecord}
-          >
-            Add Another Record
-          </button>
+          {/* Add Record Button - only show if no event selected */}
+          {!selectedEvent && (
+            <button
+              type="button"
+              className="btn btn-outline-danger rounded-pill mb-3"
+              onClick={addRecord}
+            >
+              Add Another Record
+            </button>
+          )}
 
           {/* ✅ SUBMIT */}
           <button
