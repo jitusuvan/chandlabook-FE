@@ -17,7 +17,7 @@ import SplashScreen from './components/SplashScreen';
 import EventsList from './pages/EventsList';
 import InvitationGenerator from './pages/InvitationGenerator';
 import ExpenseManagement from './pages/ExpenseManagement';
-import ExpenseManager from './pages/ExpenseManager';
+// import ExpenseManager from './pages/ExpenseManager';
 import AddExpense from './pages/AddExpense';
 import ViewExpenses from './pages/ViewExpenses';
 

@@ -25,7 +25,7 @@ const AppLayout = ({ title, subtitle, showBack, showProfile, summaryCards, child
   
   const { Get } = useApi();
     const { user, } = useContext(AuthContext);
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
 const [userData, setUserData] = useState<User | null>(null);
  
 
