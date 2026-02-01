@@ -176,28 +176,28 @@ const GuestRecords = ({ guest, summary }: GuestRecordsProps) => {
   return (
     <>
       {summary && (
-        <div className="row g-2 mb-3 mx-1">
-          <div className="col-4">
+        <div className="row g-2 g-md-3 mb-3 mx-1">
+          <div className="col-4 col-md-4">
             <div className="card text-center bg-light border-0 shadow-sm">
-              <div className="card-body p-2 py-3">
+              <div className="card-body p-2 p-md-3 py-3">
                 <small className="text-muted d-block mb-1">Aavel</small>
-                <div className="fw-bold text-success fs-6">₹{summary.aavel_total}</div>
+                <div className="fw-bold text-success fs-6 fs-md-5">₹{summary.aavel_total}</div>
               </div>
             </div>
           </div>
-          <div className="col-4">
+          <div className="col-4 col-md-4">
             <div className="card text-center bg-light border-0 shadow-sm">
-              <div className="card-body p-2 py-3">
+              <div className="card-body p-2 p-md-3 py-3">
                 <small className="text-muted d-block mb-1">Mukel</small>
-                <div className="fw-bold text-danger fs-6">₹{summary.mukel_total}</div>
+                <div className="fw-bold text-danger fs-6 fs-md-5">₹{summary.mukel_total}</div>
               </div>
             </div>
           </div>
-          <div className="col-4">
+          <div className="col-4 col-md-4">
             <div className="card text-center bg-light border-0 shadow-sm">
-              <div className="card-body p-2 py-3">
+              <div className="card-body p-2 p-md-3 py-3">
                 <small className="text-muted d-block mb-1">Difference</small>
-                <div className="fw-bold text-primary fs-6">₹{summary.difference}</div>
+                <div className="fw-bold text-primary fs-6 fs-md-5">₹{summary.difference}</div>
               </div>
             </div>
           </div>
@@ -208,12 +208,12 @@ const GuestRecords = ({ guest, summary }: GuestRecordsProps) => {
           key={record.id}
           className="card border-0 shadow-sm rounded-4 mb-3"
         >
-          <div className="card-body p-3">
-            <div className="d-flex justify-content-between align-items-start mb-2">
-              <div>
+          <div className="card-body p-3 p-md-4">
+            <div className="d-flex flex-column flex-md-row justify-content-between align-items-start mb-2">
+              <div className="flex-grow-1 mb-2 mb-md-0">
                 <div className="d-flex align-items-center mb-1">
                   <FaRupeeSign className="text-success me-1" size={14} />
-                  <h6 className="mb-0 fw-bold text-success">{record.amount}</h6>
+                  <h6 className="mb-0 fw-bold text-success fs-5 fs-md-4">{record.amount}</h6>
                   {record.pay_later && (
                     <span className="badge bg-warning text-dark ms-2 rounded-pill">
                       <FaClock className="me-1" size={10} />
@@ -243,7 +243,7 @@ const GuestRecords = ({ guest, summary }: GuestRecordsProps) => {
               )}
             </div>
             
-            <div className="d-flex gap-2">
+            <div className="d-flex flex-column flex-md-row gap-2">
               <button 
                 className={`btn btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center ${
                   record.pay_later ? 'btn-warning' : 'btn-success'

@@ -1,6 +1,6 @@
 {
   "api": {
-    "host": "http://10.183.88.74:8000",
+    "host": "http://10.67.222.74:8000",
     "token": "/auth/token/",
     "refreshToken": "/auth/token/refresh/",
     "passwordReset": "/api/v1/passwordReset/",

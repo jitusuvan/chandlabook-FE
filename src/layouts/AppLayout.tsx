@@ -46,42 +46,48 @@ const [userData, setUserData] = useState<User | null>(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <div className="vh-100 bg-light d-flex justify-content-center px-2 px-md-0">
+    <div className="vh-100 bg-light d-flex justify-content-center p-0">
       <div
         className="w-100 bg-white shadow-sm d-flex flex-column"
-        style={{ maxWidth: 430, borderRadius: "16px", overflow: "hidden" }}
+        style={{ 
+          maxWidth: "100%", 
+          borderRadius: "0", 
+          overflow: "hidden"
+        }}
       >
         {/* HEADER */}
         <div
-          className="bg-white text-black position-relative d-flex flex-column justify-content-center shadow-md flex-shrink-0"
+          className="bg-white text-black position-relative d-flex flex-column justify-content-center shadow-sm flex-shrink-0"
           style={{ 
-            padding: "10px 0"
+            padding: "16px 0",
+            minHeight: "60px"
           }}
         >
           
           {showBack && (
             <div
-              className="position-absolute start-0 top-0 mt-2 ms-3"
+              className="position-absolute start-0 top-50 translate-middle-y ms-3"
               onClick={() => onBackClick ? onBackClick() : navigate(-1)}
               style={{
-                width: "30px",
-                height: "30px",
+                width: "32px",
+                height: "32px",
                 borderRadius: "50%",
-                background: "rgba(255, 255, 255, 0.2)",
+                background: "rgba(0, 0, 0, 0.1)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
-                fontSize: "16px",
+                fontSize: "18px",
                 fontWeight: "bold",
-                transition: "all 0.2s ease"
+                transition: "all 0.2s ease",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
+                e.currentTarget.style.background = "rgba(0, 0, 0, 0.2)";
                 e.currentTarget.style.transform = "scale(1.1)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
+                e.currentTarget.style.background = "rgba(0, 0, 0, 0.1)";
                 e.currentTarget.style.transform = "scale(1)";
               }}
             >
@@ -92,24 +98,33 @@ const [userData, setUserData] = useState<User | null>(null);
           {/* ✅ PROFILE ICON (only if showProfile=true) */}
           {showProfile && (
             <div
-              className="position-absolute end-0 top-0 mt-3 me-3"
+              className="position-absolute end-0 top-50 translate-middle-y me-3"
               onClick={() => navigate("/profile")}
               style={{
-              width: 24,
-              height: 24,
-              borderRadius: "50%",
-              background: "#dc3545",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontSize: "1rem",
-              fontWeight: "bold",
-              cursor:"pointer"
-            }}
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: "#dc3545",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontSize: "14px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: "0 2px 8px rgba(220, 53, 69, 0.3)"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.1)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(220, 53, 69, 0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.boxShadow = "0 2px 8px rgba(220, 53, 69, 0.3)";
+              }}
             >
-               {userData?.first_name?.charAt(0) || "U"}
-            
+              {userData?.first_name?.charAt(0)?.toUpperCase() || "U"}
             </div>
           )}
 
@@ -127,7 +142,7 @@ const [userData, setUserData] = useState<User | null>(null);
 
         {/* SCROLLABLE CONTENT */}
         <div className="flex-grow-1 overflow-auto" style={{ minHeight: 0 }}>
-          <div className="p-3 p-md-4">{children}</div>
+          <div className="p-3 p-md-4 p-lg-5">{children}</div>
         </div>
       </div>
     </div>

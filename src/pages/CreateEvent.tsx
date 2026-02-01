@@ -14,7 +14,7 @@ const CreateEvent = () => {
     name: "",
     date: "",
     event_type: "chandlo",
-    select_type: "mukel",
+    select_type: "aavel",
     bride_groom_name: "",
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -71,7 +71,7 @@ const CreateEvent = () => {
         }),
       };
 
-      const response = await Post("events", payload);
+      await Post("events", payload);
       
       toast.success("Event created successfully!");
       
@@ -80,14 +80,12 @@ const CreateEvent = () => {
         name: "",
         date: "",
         event_type: "chandlo",
-        select_type: "mukel",
+        select_type: "aavel",
         bride_groom_name: "",
       });
       
-      // Navigate to invitation generator
-      if (response?.data?.id) {
-        navigate(`/events/${response.data.id}/invitation`);
-      }
+      // Navigate to events list
+      navigate('/events');
       
     } catch (error: any) {
       console.error("Event creation failed:", error);
@@ -161,30 +159,8 @@ const CreateEvent = () => {
       {errors.date && <div className="invalid-feedback">{errors.date}</div>} */}
     </div>
 
-    {/* CONTRIBUTION TYPE */}
-    <div className="mb-4">
-      <label className="form-label fw-semibold">Contribution Type</label>
-      <div className="d-flex bg-light rounded-pill p-1">
-        <button
-          type="button"
-          className={`btn flex-fill rounded-pill fw-semibold ${
-            eventData.select_type === "mukel" ? "btn-danger" : "btn-light"
-          }`}
-          onClick={() => handleInputChange("select_type", "mukel")}
-        >
-          Mukel
-        </button>
-        <button
-          type="button"
-          className={`btn flex-fill rounded-pill fw-semibold ${
-            eventData.select_type === "aavel" ? "btn-danger" : "btn-light"
-          }`}
-          onClick={() => handleInputChange("select_type", "aavel")}
-        >
-          Aavel
-        </button>
-      </div>
-    </div>
+    {/* CONTRIBUTION TYPE - REMOVED */}
+    {/* Contribution type is now automatically set to "aavel" */}
 
     {/* ❤️ COUPLE DETAILS */}
     {eventData.event_type === "marriage" && (

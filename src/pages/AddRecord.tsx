@@ -38,7 +38,7 @@ const AddRecord = () => {
     first_name: "",
     last_name: "",
     surname: "",
-    mobile_no: "",
+    // mobile_no: "",
     city: "",
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -73,7 +73,7 @@ const handleSelectEvent = (event: Event) => {
       {
         date: "",
         amount: "",
-        select: "mukel",
+        select: "aavel",
         event: "chandlo",
         bride_groom: "",
         pay_later: false,
@@ -130,7 +130,7 @@ const handleSelectEvent = (event: Event) => {
         first_name: commonRules.name,
         last_name: commonRules.name,
         surname: commonRules.name,
-        mobile_no: commonRules.phone,
+        // mobile_no: commonRules.phone,
         city: commonRules.city
       };
 
@@ -201,7 +201,7 @@ const handleSelectEvent = (event: Event) => {
       setShowGuestForm(false);
       setSelectedGuest(null);
       setSearchQuery("");
-      setGuestData({ first_name: "", last_name: "", surname: "", mobile_no: "", city: "" });
+      setGuestData({ first_name: "", last_name: "", surname: "", city: "" });
       setRecords([{ date: "", amount: "", select: "mukel", event: "chandlo", bride_groom: "", pay_later: false }]);
       setErrors({});
     } catch (error: any) {
@@ -236,7 +236,7 @@ const handleSelectEvent = (event: Event) => {
                     <div className="fw-bold">
                       {guest.first_name} {guest.last_name} {guest.surname}
                     </div>
-                    <small className="text-muted">{guest.city} • {guest.mobile_no}</small>
+                    <small className="text-muted">{guest.city}</small>
                   </div>
                 ))
               ) : (
@@ -267,7 +267,7 @@ const handleSelectEvent = (event: Event) => {
                 <h6 className="fw-bold mb-1">
                   {selectedGuest.first_name} {selectedGuest.last_name} {selectedGuest.surname}
                 </h6>
-                <small className="text-muted">{selectedGuest.city} • {selectedGuest.mobile_no}</small>
+                <small className="text-muted">{selectedGuest.city} </small>
               </div>
               <button
                 className="btn btn-sm btn-outline-secondary"
@@ -519,17 +519,7 @@ const handleSelectEvent = (event: Event) => {
               />
             </div>
             <div className="col-6">
-              <FormInput
-                placeholder="Mobile number"
-                name="mobile_no"
-                maxLength={15}
-                value={guestData.mobile_no}
-                onChange={(e) => setGuestData({ ...guestData, mobile_no: e.target.value })}
-                error={errors.mobile_no}
-              />
-            </div>
-            <div className="col-6">
-              <FormInput
+               <FormInput
                 placeholder="City"
                 name="city"
                 maxLength={50}
@@ -537,6 +527,17 @@ const handleSelectEvent = (event: Event) => {
                 onChange={(e) => setGuestData({ ...guestData, city: capitalizeFirst(e.target.value) })}
                 error={errors.city}
               />
+              {/* <FormInput
+                placeholder="Mobile number"
+                name="mobile_no"
+                maxLength={15}
+                value={guestData.mobile_no}
+                onChange={(e) => setGuestData({ ...guestData, mobile_no: e.target.value })}
+                error={errors.mobile_no}
+              /> */}
+            </div>
+            <div className="col-6">
+             
             </div>
           </div>
           <div className="mb-3">

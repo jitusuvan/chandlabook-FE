@@ -82,6 +82,124 @@ label {
     font-size: 0.875rem !important;
   }
 }
+
+/* RESPONSIVE BREAKPOINTS */
+/* Mobile First - Base styles for mobile */
+.container-responsive {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+  .container-responsive {
+    max-width: 540px;
+  }
+  .fs-responsive {
+    font-size: 1rem !important;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+  .container-responsive {
+    max-width: 720px;
+  }
+  .vh-100 .w-100 {
+    max-width: 800px !important;
+  }
+  .card-body {
+    padding: 1.5rem !important;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .container-responsive {
+    max-width: 960px;
+  }
+  .vh-100 .w-100 {
+    max-width: 1000px !important;
+  }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+  .container-responsive {
+    max-width: 1140px;
+  }
+  .vh-100 .w-100 {
+    max-width: 1200px !important;
+  }
+}
+
+/* XXL devices (larger desktops, 1400px and up) */
+@media (min-width: 1400px) {
+  .container-responsive {
+    max-width: 1320px;
+  }
+  .vh-100 .w-100 {
+    max-width: 1400px !important;
+  }
+}
+
+/* RESPONSIVE GRID ADJUSTMENTS */
+@media (min-width: 768px) {
+  .col-responsive-md-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+  .col-responsive-md-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+  .col-responsive-md-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (min-width: 992px) {
+  .col-responsive-lg-2 {
+    flex: 0 0 16.666667%;
+    max-width: 16.666667%;
+  }
+  .col-responsive-lg-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+/* RESPONSIVE TYPOGRAPHY */
+@media (min-width: 768px) {
+  h1, .h1 { font-size: 2.5rem; }
+  h2, .h2 { font-size: 2rem; }
+  h3, .h3 { font-size: 1.75rem; }
+  h4, .h4 { font-size: 1.5rem; }
+  h5, .h5 { font-size: 1.25rem; }
+  h6, .h6 { font-size: 1.1rem; }
+}
+
+@media (min-width: 1200px) {
+  h1, .h1 { font-size: 3rem; }
+  h2, .h2 { font-size: 2.5rem; }
+  h3, .h3 { font-size: 2rem; }
+  h4, .h4 { font-size: 1.75rem; }
+}
+
+/* RESPONSIVE SPACING */
+@media (min-width: 768px) {
+  .p-responsive { padding: 2rem !important; }
+  .m-responsive { margin: 2rem !important; }
+  .gap-responsive { gap: 1.5rem !important; }
+}
+
+@media (min-width: 1200px) {
+  .p-responsive { padding: 3rem !important; }
+  .m-responsive { margin: 3rem !important; }
+  .gap-responsive { gap: 2rem !important; }
+}
 .form-control:focus, .form-select:focus {
   border-color: #dc3545; /* bootstrap danger red */
 }

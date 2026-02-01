@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import AppLayout from '../layouts/AppLayout';
-import InvitationCard from '../components/InvitationCard';
+import EditableInvitationCard from '../components/EditableInvitationCard';
 import useApi from '../hooks/useApi';
 import { FaWhatsapp, FaImage, FaFilePdf } from 'react-icons/fa';
 
@@ -360,8 +360,7 @@ With love and blessings`;
         <div className="text-center mb-4">
           <h6 className="fw-semibold mb-3">Invitation Preview</h6>
           <div className="d-flex justify-content-center">
-            <InvitationCard 
-              ref={cardRef}
+            <EditableInvitationCard 
               eventData={eventData}
               hostName={hostName}
             />

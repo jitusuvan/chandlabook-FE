@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import AppLayout from "../layouts/AppLayout";
 import useApi from "../hooks/useApi";
 import AuthContext from "../contexts/AuthContext";
-import { FaShare, FaChartLine, FaHeart, FaFire, FaCircle } from "react-icons/fa";
+import {  FaChartLine, FaHeart, FaFire, FaCircle, FaEdit, FaTrash } from "react-icons/fa";
 import SearchInput from "../components/ui/SearchInput";
+import Swal from "sweetalert2";
+import { toast } from "react-hot-toast";
 
 interface Event {
   id: string;
@@ -19,7 +21,7 @@ interface Event {
 
 const EventsList = () => {
   const navigate = useNavigate();
-  const { GetPaginatedData } = useApi();
+  const { GetPaginatedData, Delete, Patch } = useApi();
   const { authToken } = useContext(AuthContext) || {};
   const [events, setEvents] = useState<Event[]>([]);
   const [, setAllEvents] = useState<Event[]>([]);
@@ -86,6 +88,92 @@ const EventsList = () => {
   useEffect(() => {
     fetchEvents();
   }, [searchQuery]);
+
+  const handleEdit = async (event: Event) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Edit Event',
+      html: `
+        <div class="mb-3">
+          <label class="form-label">Event Name</label>
+          <input id="swal-input1" class="form-control" value="${event.name}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Event Date</label>
+          <input id="swal-input2" type="date" class="form-control" value="${event.date}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Event Type</label>
+          <select id="swal-input3" class="form-select">
+            <option value="chandlo" ${event.event_type === 'chandlo' ? 'selected' : ''}>Chandlo</option>
+            <option value="marriage" ${event.event_type === 'marriage' ? 'selected' : ''}>Marriage</option>
+          </select>
+        </div>
+        <div class="mb-3" id="bride-groom-div" style="display: ${event.event_type === 'marriage' ? 'block' : 'none'}">
+          <label class="form-label">Bride & Groom Name</label>
+          <input id="swal-input4" class="form-control" value="${event.bride_groom_name || ''}">
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Save Changes',
+      cancelButtonText: 'Cancel',
+      didOpen: () => {
+        const eventTypeSelect = document.getElementById('swal-input3') as HTMLSelectElement;
+        const brideGroomDiv = document.getElementById('bride-groom-div');
+        eventTypeSelect.addEventListener('change', () => {
+          if (brideGroomDiv) {
+            brideGroomDiv.style.display = eventTypeSelect.value === 'marriage' ? 'block' : 'none';
+          }
+        });
+      },
+      preConfirm: () => {
+        const name = (document.getElementById('swal-input1') as HTMLInputElement).value;
+        const date = (document.getElementById('swal-input2') as HTMLInputElement).value;
+        const event_type = (document.getElementById('swal-input3') as HTMLSelectElement).value;
+        const bride_groom_name = (document.getElementById('swal-input4') as HTMLInputElement).value;
+        
+        if (!name || !date) {
+          Swal.showValidationMessage('Please fill all required fields');
+          return false;
+        }
+        
+        return { name, date, event_type, bride_groom_name };
+      }
+    });
+
+    if (formValues) {
+      try {
+        await Patch("events", event.id, formValues);
+        toast.success('Event updated successfully!');
+        fetchEvents();
+      } catch (error) {
+        toast.error('Failed to update event');
+      }
+    }
+  };
+
+  const handleDelete = async (event: Event) => {
+    const result = await Swal.fire({
+      title: 'Delete Event',
+      text: `Are you sure you want to delete "${event.name}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await Delete("events",event.id);
+        Swal.fire('Deleted!', 'Event has been deleted.', 'success');
+        fetchEvents();
+      } catch (error) {
+        Swal.fire('Error!', 'Failed to delete event', 'error');
+      }
+    }
+  };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -204,7 +292,7 @@ const EventsList = () => {
               
               {/* Action Buttons */}
               <div className="d-flex gap-2">
-                <button
+                {/* <button
                   className="btn btn-primary btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -213,7 +301,7 @@ const EventsList = () => {
                 >
                   <FaShare className="me-2" size={12} />
                   <span className="fw-semibold">Invite</span>
-                </button>
+                </button> */}
                 <button
                   className="btn btn-success btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center"
                   onClick={(e) => {
@@ -223,6 +311,24 @@ const EventsList = () => {
                 >
                   <FaChartLine className="me-2" size={12} />
                   <span className="fw-semibold">Expenses</span>
+                </button>
+                <button
+                  className="btn btn-warning btn-sm rounded-pill d-flex align-items-center justify-content-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(event);
+                  }}
+                >
+                  <FaEdit size={12} />
+                </button>
+                <button
+                  className="btn btn-danger btn-sm rounded-pill d-flex align-items-center justify-content-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(event);
+                  }}
+                >
+                  <FaTrash size={12} />
                 </button>
               </div>
               </div>

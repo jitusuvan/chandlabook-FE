@@ -3,10 +3,8 @@ import AppLayout from "../layouts/AppLayout";
 import DashboardCard from "../components/ui/DashboardCard";
 import {
   FaPlus,
-  FaCalendarPlus,
   FaUsers,
   FaCalendarAlt,
-  FaEnvelope,
   FaRupeeSign,
   FaClock,
   FaCalendarDay,
@@ -145,28 +143,19 @@ const loadMoreUpcoming = async () => {
 };
 
   return (
-    <AppLayout title="Dashboard" showProfile>
+    <AppLayout title="Dashboard" showProfile={true}>
       
       {/* 🔴 SUMMARY CARD */}
       <div className="card border-0 shadow-sm mb-4 bg-danger text-white rounded-4">
-        <div className="card-body">
-          {/* <div className="d-flex justify-content-between align-items-center mb-2">
-            <small className="opacity-75">TOTAL CONTRIBUTIONS</small>
-            <div className="bg-white bg-opacity-25 p-2 rounded-3">
-              <FaWallet />
-            </div>
-          </div> */}
-
-          {/* <h2 className="fw-bold mb-3">₹ 4,50,250</h2> */}
-
+        <div className="card-body p-3 p-md-4">
           <div className="d-flex justify-content-between">
-            <div>
+            <div className="text-center flex-fill">
               <small className="opacity-75">ACTIVE EVENTS</small>
-              <div className="fw-semibold">{loading ? "--" : summary.total_events}</div>
+              <div className="fw-semibold fs-5 fs-md-4">{loading ? "--" : summary.total_events}</div>
             </div>
-            <div>
+            <div className="text-center flex-fill">
               <small className="opacity-75">TOTAL GUESTS</small>
-              <div className="fw-semibold">{loading ? "--" : summary.total_guests}</div>
+              <div className="fw-semibold fs-5 fs-md-4">{loading ? "--" : summary.total_guests}</div>
             </div>
           </div>
         </div>
@@ -175,7 +164,7 @@ const loadMoreUpcoming = async () => {
       {/* ⚡ QUICK ACTIONS */}
       <h6 className="fw-semibold mb-2">Quick Actions</h6>
 
-      <div className="row g-2 mb-3">
+      <div className="row g-2 g-md-3 mb-3">
         <DashboardCard
           icon={<FaPlus />}
           label="New Entry"
@@ -191,26 +180,13 @@ const loadMoreUpcoming = async () => {
         />
 
         <DashboardCard
-          icon={<FaCalendarPlus />}
-          label="Add Event"
-          color="warning"
-          onClick={() => navigate("/create-event")}
-        />
-
-        <DashboardCard
           icon={<FaCalendarAlt />}
-          label="View Events"
+          label="Events"
           color="info"
           onClick={() => navigate("/events")}
         />
         
-        <DashboardCard
-          icon={<FaEnvelope />}
-          label="Invitations"
-          color="success"
-          onClick={() => navigate("/events")}
-        />
-        
+
         <DashboardCard
           icon={<FaRupeeSign />}
           label="Expenses"
@@ -221,18 +197,22 @@ const loadMoreUpcoming = async () => {
 
       {/* 📅 TABS */}
       <div className="mt-4">
-        <div className="d-flex gap-2 mb-3">
+        <div className="d-flex gap-2 gap-md-3 mb-3">
           <button 
-            className={`btn btn-sm rounded-pill flex-fill ${activeTab === "today" ? "btn-primary" : "btn-outline-primary"}`}
+            className={`btn btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center ${activeTab === "today" ? "btn-primary" : "btn-outline-primary"}`}
             onClick={() => setActiveTab("today")}
+            style={{ padding: "8px 16px", fontSize: "14px", fontWeight: "500" }}
           >
-            <FaCalendarDay className="me-1" />Today
+            <FaCalendarDay className="me-2" size={14} />
+            Today
           </button>
           <button 
-            className={`btn btn-sm rounded-pill flex-fill ${activeTab === "upcoming" ? "btn-warning" : "btn-outline-warning"}`}
+            className={`btn btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center ${activeTab === "upcoming" ? "btn-warning" : "btn-outline-warning"}`}
             onClick={() => setActiveTab("upcoming")}
+            style={{ padding: "8px 16px", fontSize: "14px", fontWeight: "500" }}
           >
-            <FaClock className="me-1" />Upcoming
+            <FaClock className="me-2" size={14} />
+            Upcoming
           </button>
         </div>
 
@@ -246,11 +226,11 @@ const loadMoreUpcoming = async () => {
               </div>
             ) : (
               <>
-                <div className="row g-3">
+                <div className="row g-3 g-md-4">
                   {todayEvents.map((event) => (
-                    <div key={event.id} className="col-12">
+                    <div key={event.id} className="col-12 col-md-6 col-lg-4">
                       <div className="card shadow-sm rounded-4 border-start border-primary border-4">
-                        <div className="card-body p-3">
+                        <div className="card-body p-3 p-md-4">
                           <div className="d-flex justify-content-between align-items-start">
                             <div className="flex-grow-1">
                               <h6 className="fw-bold mb-1">{event.guest_name}</h6>
@@ -300,11 +280,11 @@ const loadMoreUpcoming = async () => {
               </div>
             ) : (
               <>
-                <div className="row g-3">
+                <div className="row g-3 g-md-4">
                   {upcomingEvents.map((event) => (
-                    <div key={event.id} className="col-12">
+                    <div key={event.id} className="col-12 col-md-6 col-lg-4">
                       <div className="card shadow-sm rounded-4 border-start border-warning border-4">
-                        <div className="card-body p-3">
+                        <div className="card-body p-3 p-md-4">
                           <div className="d-flex justify-content-between align-items-start">
                             <div className="flex-grow-1">
                               <h6 className="fw-bold mb-1">{event.guest_name}</h6>
