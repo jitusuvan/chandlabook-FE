@@ -1,10 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import type { FormEvent } from "react";
 import toast from "react-hot-toast";
-import axios from "axios";
 
-import global from "../config/Global.json";
+import AuthContext from "../contexts/AuthContext";
 import { validateForm, commonRules } from "../utils/validation";
 import type { ValidationErrors } from "../utils/validation";
 import FormInput from "../components/ui/FormInput";
@@ -12,6 +11,7 @@ import headerImg from "../assets/image/hederimage.png";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { signupUser } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -49,17 +49,10 @@ const Signup = () => {
   first_name: formData.get("first_name"),
   last_name: formData.get("last_name"),
   password,
-  groups: [],  // sending empty array here
+  groups: [],
 };
-    try {
-      const apiUrl = global.api.host + global.api.createUser;
-      await axios.post(apiUrl, payload);
 
-      toast.success("Account created successfully!");
-      navigate("/login");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Signup failed. Try again.");
-    }
+    await signupUser(payload);
   };
 
   return (

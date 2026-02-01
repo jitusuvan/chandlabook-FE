@@ -25,6 +25,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   loginUser: (e: FormEvent<HTMLFormElement>) => void;
   autoLogin: (username: string, password: string) => Promise<boolean>;
+  signupUser: (userData: any) => Promise<boolean>;
   logOutUser: (message?: string) => void;
   setAuthToken: (token: AuthToken | null) => void;
   setUser: (user: User) => void;
@@ -82,7 +83,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       navigate("/");
       return true;
     } catch (error: any) {
-      if (showToast) toast.error(error.response?.data?.message || "Login failed.");
+      if (showToast) {
+        const errorMessage = error.response?.data?.detail || 
+                           error.response?.data?.message || 
+                           "Login failed.";
+        toast.error(errorMessage);
+      }
       console.error(error);
       return false;
     }
@@ -100,6 +106,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return await performLogin(username, password, false);
   };
 
+  const signupUser = async (userData: any) => {
+    try {
+      const response = await axios.post(getAPI("createUser"), userData);
+      const successMessage = response.data?.message || "User created successfully!";
+      toast.success(successMessage);
+      navigate("/login");
+      return true;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.detail || 
+                         error.response?.data?.message || 
+                         "Signup failed.";
+      toast.error(errorMessage);
+      console.error(error);
+      return false;
+    }
+  };
+
   // AuthProvider: logOutUser
   const logOutUser = (message?: string) => {
     const isPasswordResetPage = !!matchPath(
@@ -112,9 +135,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser({});
       setIsAuthenticated(false);
 
+      // Clear all authentication related data from localStorage
       localStorage.removeItem("authToken");
       localStorage.removeItem("user_type");
       localStorage.removeItem("role");
+      localStorage.removeItem("settings");
+      localStorage.removeItem("firstLoginAfterSettingFlag");
+      
+      // Clear any other app-specific data that might persist user session
+      localStorage.clear();
 
       if (message) {
         // use a fixed id so duplicates don't stack
@@ -124,6 +153,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       navigate("/login", { replace: true });
     } else if (message) {
       toast.error(message, { id: "logout-toast" });
+    }
+  };
+
+  const verifyTokenWithBackend = async (token: string): Promise<boolean> => {
+    try {
+      const response = await axios.get(getAPI("userProfile"), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.status === 200;
+    } catch (error: any) {
+      // If 401/403/404, user doesn't exist or token invalid
+      if (error.response?.status === 401 || error.response?.status === 403 || error.response?.status === 404) {
+        return false;
+      }
+      return false;
     }
   };
 
@@ -180,22 +224,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const tokenData: AuthToken = JSON.parse(storedToken);
 
           if (!isTokenExpired(tokenData.access)) {
-            setAuthToken(tokenData);
-            try {
-              setUser(jwtDecode(tokenData.access));
-            } catch {
+            // Verify token with backend to ensure user still exists
+            const isValidUser = await verifyTokenWithBackend(tokenData.access);
+            
+            if (isValidUser) {
+              setAuthToken(tokenData);
+              try {
+                setUser(jwtDecode(tokenData.access));
+              } catch {
+                setUser({});
+              }
+              setIsAuthenticated(true);
+            } else {
+              // User account deleted or token invalid
+              localStorage.clear();
+              setAuthToken(null);
               setUser({});
+              setIsAuthenticated(false);
+              if (!isPublicRoute) {
+                navigate("/login", { replace: true });
+              }
             }
-            setIsAuthenticated(true);
           } else {
             console.log("Token expired, attempting refresh...");
             const refreshed = await refreshTokens(tokenData.refresh);
             if (!refreshed) {
               console.log("Refresh failed");
+              // Clear all localStorage data when refresh fails
+              localStorage.clear();
               if (!isPublicRoute) {
                 logOutUser("Session expired.");
-              } else {
-                localStorage.removeItem("authToken");
               }
             } else {
               console.log("Token refreshed successfully");
@@ -203,13 +261,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         } catch (error) {
           console.error("Error parsing token:", error);
-          localStorage.removeItem("authToken");
+          // Clear all localStorage data on token parsing error
+          localStorage.clear();
           if (!isPublicRoute) {
             logOutUser();
           }
         }
-      } else if (!isPublicRoute) {
-        logOutUser();
+      } else {
+        // No token found - ensure user is logged out
+        setAuthToken(null);
+        setUser({});
+        setIsAuthenticated(false);
+        
+        if (!isPublicRoute) {
+          navigate("/login", { replace: true });
+        }
       }
 
       setLoading(false);
@@ -241,7 +307,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [location.pathname]);
 
   return (
     <AuthContext.Provider
@@ -251,6 +317,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isAuthenticated,
         loginUser,
         autoLogin,
+        signupUser,
         logOutUser,
         setAuthToken,
         setUser,
