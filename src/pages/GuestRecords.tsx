@@ -39,7 +39,7 @@ interface GuestRecordsProps {
 }
 
 const GuestRecords = ({ guest, summary }: GuestRecordsProps) => {
-  const { GetPaginatedData, Patch, Delete, Put } = useApi();
+  const { GetPaginatedData, Patch, Delete, } = useApi();
   const [records, setRecords] = useState<GuestRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -137,7 +137,7 @@ const GuestRecords = ({ guest, summary }: GuestRecordsProps) => {
 
   const handleTogglePayLater = async (recordId: string, currentPayLater: boolean) => {
     try {
-      await Put("guestRecord", recordId, { pay_later: !currentPayLater });
+      await Patch("guestRecord", recordId, { pay_later: !currentPayLater });
       
       setRecords(records.map(record => 
         record.id === recordId 
