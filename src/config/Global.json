@@ -1,6 +1,6 @@
 {
   "api": {
-    "host": "http://198.96.91.3",
+    "host": "https://api.jitu007.in",
     "token": "/auth/token/",
     "refreshToken": "/auth/token/refresh/",
     "passwordReset": "/api/v1/passwordReset/",
