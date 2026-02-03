@@ -54,6 +54,8 @@ export const validateForm = (formData: FormData, rules: ValidationRules): Valida
 const getPatternErrorMessage = (pattern: RegExp): string => {
   if (pattern.source.includes('@')) return 'Please enter a valid email address';
   if (pattern.source.includes('[0-9]')) return 'Please enter a valid phone number';
+  if (pattern.source.includes('(?=.*[A-Z])')) return 'Password must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number and 1 special character';
+  if (pattern.source.includes('[a-zA-Z\\s]')) return 'Only letters and spaces are allowed';
   return 'Invalid format';
 };
 

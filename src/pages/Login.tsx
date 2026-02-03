@@ -32,7 +32,19 @@ const Login = () => {
           return null;
         }
       },
-      password: { required: true, minLength: 1, maxLength: 30 }
+      password: { 
+        required: true, 
+        minLength: 8, 
+        maxLength: 30,
+        custom: (value: string) => {
+          if (value.length < 8) return 'Password must be at least 8 characters';
+          if (!/(?=.*[A-Z])/.test(value)) return 'Must contain at least 1 uppercase letter';
+          if (!/(?=.*[a-z])/.test(value)) return 'Must contain at least 1 lowercase letter';
+          if (!/(?=.*\d)/.test(value)) return 'Must contain at least 1 number';
+          if (!/(?=.*[@$!%*?&#])/.test(value)) return 'Must contain at least 1 special character (@$!%*?&#)';
+          return null;
+        }
+      }
     };
 
     const validationErrors = validateForm(formData, validationRules);
