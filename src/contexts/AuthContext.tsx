@@ -211,11 +211,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const publicRoutes = [
         "/login",
         "/signup",
+        "/forgot-password",
       ];
 
       const isPublicRoute = publicRoutes.some((route) =>
         matchPath({ path: route }, location.pathname)
-      );
+      ) || matchPath({ path: "/reset-password/:temp_token" }, location.pathname);
 
       const storedToken = localStorage.getItem("authToken");
 
