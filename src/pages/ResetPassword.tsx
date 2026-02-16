@@ -1,53 +1,45 @@
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import type { FormEvent } from "react";
-import AuthContext from "../contexts/AuthContext";
-import { validateForm } from "../utils/validation";
-import type { ValidationErrors } from "../utils/validation";
 import toast from "react-hot-toast";
+import axios from "axios";
+import global from "../config/Global.json";
+import { validateForm, commonRules } from "../utils/validation";
+import type { ValidationErrors } from "../utils/validation";
 import headerImg from "../assets/image/hederimage.png";
-import FormInput from "../components/ui/FormInput";
 
-const Login = () => {
-  const { loginUser, loading } = useContext(AuthContext);
+const ResetPassword = () => {
   const navigate = useNavigate();
+  const { temp_token } = useParams<{ temp_token: string }>();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if (!temp_token) {
+      toast.error("Invalid reset link");
+      navigate("/login");
+    }
+  }, [temp_token, navigate]);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrors({});
 
     const formData = new FormData(e.currentTarget);
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirm_password") as string;
+
     const validationRules = {
-      username: {
-        required: true,
-        maxLength: 50,
-        custom: (value: string) => {
-          const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-          const phonePattern = /^[0-9]{10,15}$/;
-          if (!emailPattern.test(value) && !phonePattern.test(value)) {
-            return 'Enter valid email or phone number';
-          }
-          return null;
-        }
-      },
-      password: { 
-        required: true, 
-        minLength: 8, 
-        maxLength: 30,
-        custom: (value: string) => {
-          if (value.length < 8) return 'Password must be at least 8 characters';
-          if (!/(?=.*[A-Z])/.test(value)) return 'Must contain at least 1 uppercase letter';
-          if (!/(?=.*[a-z])/.test(value)) return 'Must contain at least 1 lowercase letter';
-          if (!/(?=.*\d)/.test(value)) return 'Must contain at least 1 number';
-          if (!/(?=.*[@$!%*?&#])/.test(value)) return 'Must contain at least 1 special character (@$!%*?&#)';
-          return null;
-        }
-      }
+      password: commonRules.password
     };
 
     const validationErrors = validateForm(formData, validationRules);
+
+    if (password !== confirmPassword) {
+      validationErrors.confirm_password = "Passwords do not match";
+    }
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -55,7 +47,21 @@ const Login = () => {
       return;
     }
 
-    loginUser(e);
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${global.api.host}${global.api.confirmPassword}${temp_token}/`,
+        { new_password: password }
+      );
+      
+      toast.success(response.data?.detail || "Password reset successfully!");
+      navigate("/login");
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.detail || "Failed to reset password";
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,7 +72,7 @@ const Login = () => {
           <div className="mb-4">
             <img
               src={headerImg}
-              alt="login header"
+              alt="reset password header"
               className="w-100"
               style={{
                 height: 200,
@@ -76,29 +82,21 @@ const Login = () => {
             />
           </div>
           <div className="text-center mb-4">
-            <h2 className="fw-bold mb-1">Welcome back</h2>
+            <h2 className="fw-bold mb-1">Reset Password</h2>
             <p className="text-muted" style={{ fontSize: 14 }}>
-              Login to continue managing your records
+              Enter your new password
             </p>
           </div>
 
           <form onSubmit={handleSubmit}>
-            <FormInput
-              label="Email / Phone"
-              name="username"
-              placeholder="Enter your email or phone"
-              maxLength={50}
-              error={errors.username}
-            />
-
             <div className="mb-3">
-              <label className="form-label">Password</label>
+              <label className="form-label">New Password</label>
               <div className="position-relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
                   className={`form-control form-control-lg pe-5 ${errors.password ? 'is-invalid' : ''}`}
-                  placeholder="Enter your password"
+                  placeholder="Enter new password"
                   maxLength={30}
                   required
                 />
@@ -113,13 +111,26 @@ const Login = () => {
               {errors.password && <div className="invalid-feedback d-block">{errors.password}</div>}
             </div>
 
-            <div className="text-end text-danger mb-3">
-              <small 
-                style={{ cursor: "pointer" }}
-                onClick={() => navigate("/forgot-password")}
-              >
-                Forgot Password?
-              </small>
+            <div className="mb-4">
+              <label className="form-label">Confirm New Password</label>
+              <div className="position-relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirm_password"
+                  className={`form-control form-control-lg pe-5 ${errors.confirm_password ? 'is-invalid' : ''}`}
+                  placeholder="Confirm new password"
+                  maxLength={30}
+                  required
+                />
+                <button
+                  type="button"
+                  className="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0 bg-transparent"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <i className={`bi ${showConfirmPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                </button>
+              </div>
+              {errors.confirm_password && <div className="invalid-feedback d-block">{errors.confirm_password}</div>}
             </div>
 
             <button
@@ -127,19 +138,19 @@ const Login = () => {
               className="btn btn-danger w-100 btn-lg mb-3"
               disabled={loading}
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading ? "Resetting..." : "Reset Password"}
             </button>
           </form>
 
           <div className="text-center">
             <small className="text-muted">
-              Don't have an account?{" "}
+              Remember your password?{" "}
               <span 
                 className="text-danger" 
                 style={{ cursor: "pointer", textDecoration: "underline" }}
-                onClick={() => navigate("/signup")}
+                onClick={() => navigate("/login")}
               >
-                Create account
+                Back to Login
               </span>
             </small>
           </div>
@@ -166,33 +177,21 @@ const Login = () => {
         <div className="col-md-6 col-lg-5 d-flex align-items-center justify-content-center bg-white">
           <div className="w-100 px-4" style={{ maxWidth: "350px" }}>
             <div className="text-center mb-3">
-              <h4 className="fw-bold mb-1">Welcome back</h4>
+              <h4 className="fw-bold mb-1">Reset Password</h4>
               <p className="text-muted small">
-                Login to continue managing your records
+                Enter your new password
               </p>
             </div>
 
             <form onSubmit={handleSubmit}>
               <div className="mb-2">
-                <label className="form-label small">Email / Phone</label>
-                <input
-                  name="username"
-                  placeholder="Enter your email or phone"
-                  maxLength={50}
-                  className={`form-control ${errors.username ? 'is-invalid' : ''}`}
-                  required
-                />
-                {errors.username && <div className="invalid-feedback">{errors.username}</div>}
-              </div>
-
-              <div className="mb-2">
-                <label className="form-label small">Password</label>
+                <label className="form-label small">New Password</label>
                 <div className="position-relative">
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
                     className={`form-control pe-5 ${errors.password ? 'is-invalid' : ''}`}
-                    placeholder="Enter your password"
+                    placeholder="Enter new password"
                     maxLength={30}
                     required
                   />
@@ -207,14 +206,26 @@ const Login = () => {
                 {errors.password && <div className="invalid-feedback d-block">{errors.password}</div>}
               </div>
 
-              <div className="text-end mb-3">
-                <small 
-                  className="text-danger" 
-                  style={{ cursor: "pointer" }}
-                  onClick={() => navigate("/forgot-password")}
-                >
-                  Forgot Password?
-                </small>
+              <div className="mb-3">
+                <label className="form-label small">Confirm New Password</label>
+                <div className="position-relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="confirm_password"
+                    className={`form-control pe-5 ${errors.confirm_password ? 'is-invalid' : ''}`}
+                    placeholder="Confirm new password"
+                    maxLength={30}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0 bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    <i className={`bi ${showConfirmPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                  </button>
+                </div>
+                {errors.confirm_password && <div className="invalid-feedback d-block">{errors.confirm_password}</div>}
               </div>
 
               <button
@@ -222,19 +233,19 @@ const Login = () => {
                 className="btn btn-danger w-100 mb-3"
                 disabled={loading}
               >
-                {loading ? "Logging in..." : "Login"}
+                {loading ? "Resetting..." : "Reset Password"}
               </button>
             </form>
 
             <div className="text-center">
               <small className="text-muted">
-                Don't have an account?{" "}
+                Remember your password?{" "}
                 <span 
                   className="text-danger" 
                   style={{ cursor: "pointer", textDecoration: "underline" }}
-                  onClick={() => navigate("/signup")}
+                  onClick={() => navigate("/login")}
                 >
-                  Create account
+                  Back to Login
                 </span>
               </small>
             </div>
@@ -245,4 +256,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ResetPassword;
