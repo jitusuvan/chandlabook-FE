@@ -17,12 +17,28 @@ jobs:
           node-version: 18
 
       - name: Install
-        run: npm install
+        run: npm ci
 
       - name: Build
         run: npm run build
 
-      - name: Upload to VPS
+      - name: Ensure folder exists
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          script: mkdir -p /var/www/chandlabook-FE
+
+      - name: Clear old files
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          script: rm -rf /var/www/chandlabook-FE/*
+
+      - name: Upload new build
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -30,3 +46,4 @@ jobs:
           key: ${{ secrets.VPS_KEY }}
           source: "dist/*"
           target: "/var/www/chandlabook-FE"
+          strip_components: 1
