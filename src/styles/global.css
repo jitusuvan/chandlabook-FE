@@ -203,3 +203,14 @@ label {
 .form-control:focus, .form-select:focus {
   border-color: #dc3545; /* bootstrap danger red */
 }
+
+@media print {
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}

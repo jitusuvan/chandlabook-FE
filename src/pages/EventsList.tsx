@@ -292,16 +292,15 @@ const EventsList = () => {
               
               {/* Action Buttons */}
               <div className="d-flex gap-2">
-                {/* <button
+                <button
                   className="btn btn-primary btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center"
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/events/${event.id}/invitation`);
                   }}
                 >
-                  <FaShare className="me-2" size={12} />
-                  <span className="fw-semibold">Invite</span>
-                </button> */}
+                  <span className="fw-semibold">✉️ Invite</span>
+                </button>
                 <button
                   className="btn btn-success btn-sm rounded-pill flex-fill d-flex align-items-center justify-content-center"
                   onClick={(e) => {
