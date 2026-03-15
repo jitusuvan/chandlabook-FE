@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import React, { forwardRef } from 'react';
 
 export type TemplateType = 'chandlo' | 'marriage';
 export type TemplateStyle = 'floral' | 'royal' | 'minimal' | 'festive' | 'dark' | 'pastel';
@@ -20,13 +20,13 @@ interface Props {
   textColor?: string;
 }
 
-export const TEMPLATE_STYLES: Record<TemplateStyle, { name: string; preview: string }> = {
-  floral:  { name: '🌸 Floral',   preview: 'linear-gradient(135deg,#831843,#be185d,#f43f5e)' },
-  royal:   { name: '👑 Royal',    preview: 'linear-gradient(135deg,#1e1b4b,#3730a3,#fbbf24)' },
-  minimal: { name: '🤍 Minimal',  preview: 'linear-gradient(135deg,#f5f5f5,#e5e5e5)' },
-  festive: { name: '🎊 Festive',  preview: 'linear-gradient(135deg,#78350f,#d97706,#fbbf24)' },
-  dark:    { name: '🖤 Dark',     preview: 'linear-gradient(135deg,#0a0a0a,#1a1a2e,#e2c97e)' },
-  pastel:  { name: '🌿 Pastel',   preview: 'linear-gradient(135deg,#ecfdf5,#a7f3d0,#064e3b)' },
+export const TEMPLATE_STYLES: Record<TemplateStyle, { name: string; preview: string; bg: string; textColor: string }> = {
+  floral:  { name: '🌸 Floral',   preview: 'linear-gradient(135deg,#831843,#be185d,#f43f5e)', bg: 'linear-gradient(135deg,#831843,#be185d,#f43f5e)', textColor: 'white' },
+  royal:   { name: '👑 Royal',    preview: 'linear-gradient(135deg,#1e1b4b,#3730a3,#fbbf24)', bg: 'linear-gradient(135deg,#1e1b4b,#3730a3,#fbbf24)', textColor: '#fef08a' },
+  minimal: { name: '🤍 Minimal',  preview: 'linear-gradient(135deg,#f5f5f5,#e5e5e5)',         bg: '#ffffff',                                             textColor: '#1a1a1a' },
+  festive: { name: '🎊 Festive',  preview: 'linear-gradient(135deg,#78350f,#d97706,#fbbf24)', bg: 'linear-gradient(135deg,#78350f,#d97706,#fbbf24)', textColor: 'white' },
+  dark:    { name: '🖤 Dark',     preview: 'linear-gradient(135deg,#0a0a0a,#1a1a2e,#e2c97e)', bg: 'linear-gradient(135deg,#0a0a0a,#1a1a2e,#e2c97e)', textColor: '#e2c97e' },
+  pastel:  { name: '🌿 Pastel',   preview: 'linear-gradient(135deg,#ecfdf5,#a7f3d0,#064e3b)', bg: 'linear-gradient(135deg,#ecfdf5,#a7f3d0,#064e3b)', textColor: '#14532d' },
 };
 
 export const TEMPLATE_DEFAULTS = {
@@ -49,7 +49,7 @@ const FloralCard = ({ sections, hostName, titleEmoji, bgColor, textColor }: any)
     <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
     <div style={{ position: 'absolute', bottom: -30, left: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
     {/* Petal corners */}
-    {[{t:0,l:0,tr:'none'},{t:0,r:0,tr:'scaleX(-1)'},{b:0,l:0,tr:'scaleY(-1)'},{b:0,r:0,tr:'scale(-1)'}].map((pos,i) => (
+    {[{t:0,l:0,tr:'none'},{t:0,r:0,tr:'scaleX(-1)'},{b:0,l:0,tr:'scaleY(-1)'},{b:0,r:0,tr:'scale(-1)'}].map((pos) => (
       <svg key={i} width={60} height={60} viewBox="0 0 60 60" style={{ position:'absolute', opacity:0.3, ...pos, transform: (pos as any).tr }} fill="none">
         <path d="M5 5 Q5 30 30 30 Q5 30 5 55" stroke="white" strokeWidth="1.5" />
         <path d="M5 5 Q30 5 30 30 Q30 5 55 5" stroke="white" strokeWidth="1.5" />
@@ -299,7 +299,7 @@ const InvitationCard = forwardRef<HTMLDivElement, Props>(
     const titleEmoji = TEMPLATE_DEFAULTS[template].titleEmoji;
     const props = { sections, hostName, titleEmoji, bgColor, textColor };
 
-    const CardMap: Record<TemplateStyle, JSX.Element> = {
+    const CardMap: Record<TemplateStyle, React.ReactElement> = {
       floral:  <FloralCard  {...props} />,
       royal:   <RoyalCard   {...props} />,
       minimal: <MinimalCard {...props} />,
