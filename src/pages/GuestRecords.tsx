@@ -50,7 +50,7 @@ const GuestRecords = ({ guest, summary }: GuestRecordsProps) => {
     date: "",
     amount: "",
     select: "mukel",
-    event: "chandlo",
+    event_type: "chandlo",
     bride_groom: ""
   });
 
@@ -111,7 +111,7 @@ const GuestRecords = ({ guest, summary }: GuestRecordsProps) => {
       date: record.date,
       amount: record.amount,
       select: record.select,
-      event: record.event,
+      event_type: record.event_type || "chandlo",
       bride_groom: record.bride_groom || ""
     });
   };
@@ -333,14 +333,14 @@ const GuestRecords = ({ guest, summary }: GuestRecordsProps) => {
                   <label className="form-label">Event</label>
                   <select
                     className="form-select"
-                    value={editForm.event}
-                    onChange={(e) => setEditForm({...editForm, event: e.target.value})}
+                    value={editForm.event_type}
+                    onChange={(e) => setEditForm({...editForm, event_type: e.target.value})}
                   >
                     <option value="chandlo">Chandlo</option>
                     <option value="marriage">Marriage</option>
                   </select>
                 </div>
-                {editForm.event === "marriage" && (
+                {editForm.event_type === "marriage" && (
                   <div className="mb-3">
                     <label className="form-label">Bride/Groom Name</label>
                     <input

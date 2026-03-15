@@ -1,412 +1,316 @@
-import React, { useState, useRef, forwardRef } from 'react';
-import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+import { forwardRef } from 'react';
 
-interface TextElement {
+export type TemplateType = 'chandlo' | 'marriage';
+export type TemplateStyle = 'floral' | 'royal' | 'minimal' | 'festive' | 'dark' | 'pastel';
+
+export interface Section {
   id: string;
-  text: string;
-  x: number;
-  y: number;
-  fontSize: number;
-  color: string;
-  fontWeight: string;
-  isEditing: boolean;
+  type: 'header' | 'names' | 'datetime' | 'venue' | 'message' | 'footer';
+  label: string;
+  lines: string[];
+  emoji: string;
 }
 
-interface EditableInvitationCardProps {
-  eventData: {
-    name: string;
-    date: string;
-    event_type: string;
-    bride_groom_name?: string;
-  };
+interface Props {
   hostName?: string;
+  template: TemplateType;
+  templateStyle: TemplateStyle;
+  sections: Section[];
+  bgColor?: string;
+  textColor?: string;
 }
 
-const EditableInvitationCard = forwardRef<HTMLDivElement, EditableInvitationCardProps>(({ 
-  eventData, 
-  hostName = "Your Family" 
-}, ref) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [draggedElement, setDraggedElement] = useState<string | null>(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+export const TEMPLATE_STYLES: Record<TemplateStyle, { name: string; preview: string }> = {
+  floral:  { name: '🌸 Floral',   preview: 'linear-gradient(135deg,#831843,#be185d,#f43f5e)' },
+  royal:   { name: '👑 Royal',    preview: 'linear-gradient(135deg,#1e1b4b,#3730a3,#fbbf24)' },
+  minimal: { name: '🤍 Minimal',  preview: 'linear-gradient(135deg,#f5f5f5,#e5e5e5)' },
+  festive: { name: '🎊 Festive',  preview: 'linear-gradient(135deg,#78350f,#d97706,#fbbf24)' },
+  dark:    { name: '🖤 Dark',     preview: 'linear-gradient(135deg,#0a0a0a,#1a1a2e,#e2c97e)' },
+  pastel:  { name: '🌿 Pastel',   preview: 'linear-gradient(135deg,#ecfdf5,#a7f3d0,#064e3b)' },
+};
 
-  const [textElements, setTextElements] = useState<TextElement[]>([
-    {
-      id: '1',
-      text: '🎉 You\'re Invited! 🎉',
-      x: 200,
-      y: 80,
-      fontSize: 24,
-      color: '#ffffff',
-      fontWeight: 'bold',
-      isEditing: false
-    },
-    {
-      id: '2',
-      text: `${hostName} cordially invites you to`,
-      x: 200,
-      y: 120,
-      fontSize: 14,
-      color: '#ffffff',
-      fontWeight: 'normal',
-      isEditing: false
-    },
-    {
-      id: '3',
-      text: eventData.event_type === 'marriage' ? '💒 Wedding Ceremony' : '🎊 Chandlo Celebration',
-      x: 200,
-      y: 180,
-      fontSize: 28,
-      color: '#ffffff',
-      fontWeight: 'bold',
-      isEditing: false
-    },
-    {
-      id: '4',
-      text: eventData.name,
-      x: 200,
-      y: 220,
-      fontSize: 20,
-      color: '#ffffff',
-      fontWeight: 'bold',
-      isEditing: false
-    },
-    {
-      id: '5',
-      text: '📅 Date & Time',
-      x: 200,
-      y: 300,
-      fontSize: 16,
-      color: '#ffffff',
-      fontWeight: 'normal',
-      isEditing: false
-    },
-    {
-      id: '6',
-      text: new Date(eventData.date).toLocaleDateString('en-IN'),
-      x: 200,
-      y: 330,
-      fontSize: 18,
-      color: '#ffffff',
-      fontWeight: 'bold',
-      isEditing: false
-    },
-    {
-      id: '7',
-      text: 'Time: 11:00 AM onwards',
-      x: 200,
-      y: 360,
-      fontSize: 16,
-      color: '#ffffff',
-      fontWeight: 'normal',
-      isEditing: false
-    },
-    {
-      id: '8',
-      text: 'Your presence will make our celebration complete',
-      x: 200,
-      y: 480,
-      fontSize: 14,
-      color: '#ffffff',
-      fontWeight: 'normal',
-      isEditing: false
-    },
-    {
-      id: '9',
-      text: 'With love and blessings ❤️',
-      x: 200,
-      y: 510,
-      fontSize: 12,
-      color: '#ffffff',
-      fontWeight: 'normal',
-      isEditing: false
-    }
-  ]);
+export const TEMPLATE_DEFAULTS = {
+  chandlo: { titleEmoji: '🪔' },
+  marriage: { titleEmoji: '💒' },
+};
 
-  const handleTouchStart = (e: React.TouchEvent, elementId: string) => {
-    const touch = e.touches[0];
-    const rect = cardRef.current?.getBoundingClientRect();
-    if (!rect) return;
+// ── Individual Template Designs ────────────────────────────────────────────
 
-    const element = textElements.find(el => el.id === elementId);
-    if (!element) return;
+const FloralCard = ({ sections, hostName, titleEmoji, bgColor, textColor }: any) => (
+  <div style={{
+    width: 320, minHeight: 500,
+    background: bgColor || 'linear-gradient(160deg,#831843 0%,#be185d 50%,#f43f5e 100%)',
+    borderRadius: 20, color: textColor || 'white',
+    fontFamily: "'Playfair Display', Georgia, serif",
+    boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
+    position: 'relative', overflow: 'hidden',
+  }}>
+    {/* Floral circles bg */}
+    <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
+    <div style={{ position: 'absolute', bottom: -30, left: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
+    {/* Petal corners */}
+    {[{t:0,l:0,tr:'none'},{t:0,r:0,tr:'scaleX(-1)'},{b:0,l:0,tr:'scaleY(-1)'},{b:0,r:0,tr:'scale(-1)'}].map((pos,i) => (
+      <svg key={i} width={60} height={60} viewBox="0 0 60 60" style={{ position:'absolute', opacity:0.3, ...pos, transform: (pos as any).tr }} fill="none">
+        <path d="M5 5 Q5 30 30 30 Q5 30 5 55" stroke="white" strokeWidth="1.5" />
+        <path d="M5 5 Q30 5 30 30 Q30 5 55 5" stroke="white" strokeWidth="1.5" />
+        <circle cx="5" cy="5" r="3" fill="white" />
+        <circle cx="30" cy="30" r="2" fill="white" />
+      </svg>
+    ))}
+    <div style={{ position:'absolute', inset:14, border:'1.5px solid rgba(255,255,255,0.3)', borderRadius:14, pointerEvents:'none' }} />
 
-    setDraggedElement(elementId);
-    setDragOffset({
-      x: touch.clientX - rect.left - element.x,
-      y: touch.clientY - rect.top - element.y
-    });
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!draggedElement || !cardRef.current) return;
-    e.preventDefault();
-
-    const touch = e.touches[0];
-    const rect = cardRef.current.getBoundingClientRect();
-    const newX = touch.clientX - rect.left - dragOffset.x;
-    const newY = touch.clientY - rect.top - dragOffset.y;
-
-    setTextElements(prev => prev.map(el => 
-      el.id === draggedElement 
-        ? { ...el, x: Math.max(0, Math.min(380, newX)), y: Math.max(0, Math.min(580, newY)) }
-        : el
-    ));
-  };
-
-  const handleTouchEnd = () => {
-    setDraggedElement(null);
-  };
-
-  const handleMouseDown = (e: React.MouseEvent, elementId: string) => {
-    if (e.detail === 2) { // Double click to edit
-      setTextElements(prev => prev.map(el => 
-        el.id === elementId ? { ...el, isEditing: true } : { ...el, isEditing: false }
-      ));
-      return;
-    }
-
-    const rect = cardRef.current?.getBoundingClientRect();
-    if (!rect) return;
-
-    const element = textElements.find(el => el.id === elementId);
-    if (!element) return;
-
-    setDraggedElement(elementId);
-    setDragOffset({
-      x: e.clientX - rect.left - element.x,
-      y: e.clientY - rect.top - element.y
-    });
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!draggedElement || !cardRef.current) return;
-
-    const rect = cardRef.current.getBoundingClientRect();
-    const newX = e.clientX - rect.left - dragOffset.x;
-    const newY = e.clientY - rect.top - dragOffset.y;
-
-    setTextElements(prev => prev.map(el => 
-      el.id === draggedElement 
-        ? { ...el, x: Math.max(0, Math.min(380, newX)), y: Math.max(0, Math.min(580, newY)) }
-        : el
-    ));
-  };
-
-  const handleMouseUp = () => {
-    setDraggedElement(null);
-  };
-
-
-
-  const updateStyle = (id: string, property: string, value: string | number) => {
-    setTextElements(prev => prev.map(el => 
-      el.id === id ? { ...el, [property]: value } : el
-    ));
-  };
-
-  const deleteElement = (id: string) => {
-    setTextElements(prev => prev.filter(el => el.id !== id));
-  };
-
-  const addNewElement = () => {
-    const newElement: TextElement = {
-      id: Date.now().toString(),
-      text: 'New Text',
-      x: 200,
-      y: 250,
-      fontSize: 16,
-      color: '#ffffff',
-      fontWeight: 'normal',
-      isEditing: true
-    };
-    setTextElements(prev => [...prev, newElement]);
-  };
-
-  return (
-    <div className="d-flex flex-column align-items-center">
-      {/* Controls */}
-      <div className="mb-3 d-flex gap-2 flex-wrap">
-        <button className="btn btn-sm btn-primary" onClick={addNewElement}>
-          <FaPlus className="me-1" /> Add Text
-        </button>
+    <div style={{ padding:'30px 26px', position:'relative', zIndex:1 }}>
+      <div style={{ textAlign:'center', marginBottom:8 }}>
+        <div style={{ fontSize:10, letterSpacing:10, opacity:0.5 }}>✦ ✦ ✦</div>
+        <div style={{ fontSize:38, margin:'8px 0' }}>{titleEmoji}</div>
       </div>
-
-      {/* Invitation Card */}
-      <div 
-        ref={ref || cardRef}
-        className="position-relative"
-        style={{
-          width: '400px',
-          height: '600px',
-          background: 'linear-gradient(135deg, #ff6b6b, #ffd93d)',
-          borderRadius: '20px',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-          overflow: 'hidden',
-          cursor: draggedElement ? 'grabbing' : 'default'
-        }}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        {/* Decorative Border */}
-        <div style={{
-          position: 'absolute',
-          top: '15px',
-          left: '15px',
-          right: '15px',
-          bottom: '15px',
-          border: '2px solid rgba(255,255,255,0.3)',
-          borderRadius: '15px',
-          pointerEvents: 'none'
-        }} />
-
-        {/* Text Elements */}
-        {textElements.map(element => (
-          <div key={element.id}>
-            {element.isEditing ? (
-              <input
-                type="text"
-                value={element.text}
-                onChange={(e) => setTextElements(prev => prev.map(el => 
-                  el.id === element.id ? { ...el, text: e.target.value } : el
-                ))}
-                onBlur={() => setTextElements(prev => prev.map(el => 
-                  el.id === element.id ? { ...el, isEditing: false } : el
-                ))}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    setTextElements(prev => prev.map(el => 
-                      el.id === element.id ? { ...el, isEditing: false } : el
-                    ));
-                  }
-                }}
-                style={{
-                  position: 'absolute',
-                  left: element.x - 100,
-                  top: element.y - 15,
-                  fontSize: `${element.fontSize}px`,
-                  color: '#000',
-                  background: 'white',
-                  border: '2px solid #007bff',
-                  borderRadius: '4px',
-                  padding: '4px 8px',
-                  textAlign: 'center',
-                  width: '200px',
-                  zIndex: 1000
-                }}
-                autoFocus
-              />
-            ) : (
-              <div
-                style={{
-                  position: 'absolute',
-                  left: element.x,
-                  top: element.y,
-                  fontSize: `${element.fontSize}px`,
-                  color: element.color,
-                  fontWeight: element.fontWeight,
-                  fontFamily: 'serif',
-                  textAlign: 'center',
-                  transform: 'translateX(-50%)',
-                  cursor: 'grab',
-                  userSelect: 'none',
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  transition: 'background 0.2s'
-                }}
-                onMouseDown={(e) => handleMouseDown(e, element.id)}
-                onTouchStart={(e) => handleTouchStart(e, element.id)}
-                className="text-element"
-              >
-                {element.text}
-                
-                {/* Edit Controls */}
-                <div 
-                  className="position-absolute d-none"
-                  style={{ top: '-30px', left: '50%', transform: 'translateX(-50%)' }}
-                >
-                  <div className="btn-group btn-group-sm">
-                    <button 
-                      className="btn btn-light btn-sm"
-                      onClick={() => setTextElements(prev => prev.map(el => 
-                        el.id === element.id ? { ...el, isEditing: true } : el
-                      ))}
-                    >
-                      <FaEdit size={10} />
-                    </button>
-                    <button 
-                      className="btn btn-danger btn-sm"
-                      onClick={() => deleteElement(element.id)}
-                    >
-                      <FaTrash size={10} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+      {sections.map((s: Section, i: number) => (
+        <div key={s.id}>
+          <div style={{ textAlign:'center', margin:'8px 0', opacity:0.5, fontSize:12, letterSpacing:5 }}>◆ ◇ ◆</div>
+          <div style={{ textAlign:'center', background: (s.type==='datetime'||s.type==='venue') ? 'rgba(255,255,255,0.12)' : 'transparent', borderRadius:10, padding:(s.type==='datetime'||s.type==='venue') ? '10px 12px' : '2px 0', border:(s.type==='datetime'||s.type==='venue') ? '1px solid rgba(255,255,255,0.2)' : 'none' }}>
+            {s.lines.map((line: string, li: number) => (
+              <div key={li} style={{ fontSize: li===0 ? (s.type==='header'?24:s.type==='names'?22:15) : 13, fontWeight: li===0 ? '700':'400', fontStyle: s.type==='names'&&li===0 ? 'italic':'normal', lineHeight:1.5, marginBottom: li<s.lines.length-1?3:0 }}>{line}</div>
+            ))}
           </div>
-        ))}
+        </div>
+      ))}
+      <div style={{ textAlign:'center', marginTop:14 }}>
+        <div style={{ borderTop:'1px solid rgba(255,255,255,0.3)', margin:'0 30px 8px', opacity:0.5 }} />
+        <div style={{ fontSize:11, opacity:0.6, fontStyle:'italic' }}>— {hostName} —</div>
       </div>
-
-      {/* Style Controls */}
-      <div className="mt-3 w-100" style={{ maxWidth: '400px' }}>
-        {textElements.find(el => el.isEditing) && (
-          <div className="card">
-            <div className="card-body p-2">
-              <h6 className="card-title mb-2">Text Style</h6>
-              {(() => {
-                const editingElement = textElements.find(el => el.isEditing);
-                if (!editingElement) return null;
-                
-                return (
-                  <div className="row g-2">
-                    <div className="col-6">
-                      <label className="form-label small">Font Size</label>
-                      <input
-                        type="range"
-                        className="form-range"
-                        min="10"
-                        max="40"
-                        value={editingElement.fontSize}
-                        onChange={(e) => updateStyle(editingElement.id, 'fontSize', parseInt(e.target.value))}
-                      />
-                      <small>{editingElement.fontSize}px</small>
-                    </div>
-                    <div className="col-6">
-                      <label className="form-label small">Color</label>
-                      <input
-                        type="color"
-                        className="form-control form-control-color"
-                        value={editingElement.color}
-                        onChange={(e) => updateStyle(editingElement.id, 'color', e.target.value)}
-                      />
-                    </div>
-                    <div className="col-12">
-                      <div className="form-check form-check-inline">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          checked={editingElement.fontWeight === 'bold'}
-                          onChange={(e) => updateStyle(editingElement.id, 'fontWeight', e.target.checked ? 'bold' : 'normal')}
-                        />
-                        <label className="form-check-label small">Bold</label>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-          </div>
-        )}
-      </div>
-
     </div>
-  );
-});
+  </div>
+);
 
-EditableInvitationCard.displayName = 'EditableInvitationCard';
+const RoyalCard = ({ sections, hostName, titleEmoji, bgColor, textColor }: any) => (
+  <div style={{
+    width: 320, minHeight: 500,
+    background: bgColor || 'linear-gradient(160deg,#0f0c29,#302b63,#24243e)',
+    borderRadius: 20, color: textColor || '#fef08a',
+    fontFamily: "'Cormorant Garamond', Georgia, serif",
+    boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+    position: 'relative', overflow: 'hidden',
+  }}>
+    {/* Gold shimmer lines */}
+    <div style={{ position:'absolute', top:0, left:0, right:0, height:4, background:'linear-gradient(90deg,transparent,#fbbf24,transparent)', pointerEvents:'none' }} />
+    <div style={{ position:'absolute', bottom:0, left:0, right:0, height:4, background:'linear-gradient(90deg,transparent,#fbbf24,transparent)', pointerEvents:'none' }} />
+    <div style={{ position:'absolute', inset:16, border:'1px solid rgba(251,191,36,0.4)', borderRadius:12, pointerEvents:'none' }} />
+    <div style={{ position:'absolute', inset:20, border:'1px solid rgba(251,191,36,0.15)', borderRadius:10, pointerEvents:'none' }} />
+    {/* Crown top */}
+    <div style={{ position:'absolute', top:8, left:'50%', transform:'translateX(-50%)', fontSize:20, opacity:0.4 }}>♛</div>
 
-export default EditableInvitationCard;
+    <div style={{ padding:'36px 28px 28px', position:'relative', zIndex:1 }}>
+      <div style={{ textAlign:'center', marginBottom:10 }}>
+        <div style={{ fontSize:9, letterSpacing:12, opacity:0.6, color:'#fbbf24' }}>✦ ✦ ✦</div>
+        <div style={{ fontSize:36, margin:'8px 0' }}>{titleEmoji}</div>
+        <div style={{ fontSize:9, letterSpacing:12, opacity:0.6, color:'#fbbf24' }}>✦ ✦ ✦</div>
+      </div>
+      {sections.map((s: Section) => (
+        <div key={s.id}>
+          <div style={{ textAlign:'center', margin:'10px 0 6px', color:'#fbbf24', opacity:0.7, fontSize:14 }}>❧</div>
+          <div style={{ textAlign:'center', background:(s.type==='datetime'||s.type==='venue') ? 'rgba(251,191,36,0.08)' : 'transparent', borderRadius:8, padding:(s.type==='datetime'||s.type==='venue') ? '10px 12px' : '2px 0', border:(s.type==='datetime'||s.type==='venue') ? '1px solid rgba(251,191,36,0.25)' : 'none' }}>
+            {s.lines.map((line: string, li: number) => (
+              <div key={li} style={{ fontSize: li===0 ? (s.type==='header'?26:s.type==='names'?23:16) : 14, fontWeight: li===0 ? '600':'400', fontStyle: s.type==='names' ? 'italic':'normal', lineHeight:1.6, letterSpacing: s.type==='header'&&li===0 ? 2:0 }}>{line}</div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div style={{ textAlign:'center', marginTop:16 }}>
+        <div style={{ color:'#fbbf24', opacity:0.5, fontSize:16, marginBottom:6 }}>❦</div>
+        <div style={{ fontSize:11, opacity:0.55, letterSpacing:2 }}>— {hostName} —</div>
+      </div>
+    </div>
+  </div>
+);
+
+const MinimalCard = ({ sections, hostName, titleEmoji, bgColor, textColor }: any) => (
+  <div style={{
+    width: 320, minHeight: 500,
+    background: bgColor || '#ffffff',
+    borderRadius: 20, color: textColor || '#1a1a1a',
+    fontFamily: "'Playfair Display', Georgia, serif",
+    boxShadow: '0 10px 40px rgba(0,0,0,0.12)',
+    position: 'relative', overflow: 'hidden',
+    border: '1px solid #e5e7eb',
+  }}>
+    {/* Top color bar */}
+    <div style={{ height:6, background:'linear-gradient(90deg,#dc2626,#f97316,#fbbf24)', borderRadius:'20px 20px 0 0' }} />
+    <div style={{ position:'absolute', inset:'18px', border:'1px solid #e5e7eb', borderRadius:14, pointerEvents:'none' }} />
+
+    <div style={{ padding:'24px 26px', position:'relative', zIndex:1 }}>
+      <div style={{ textAlign:'center', marginBottom:10 }}>
+        <div style={{ fontSize:36, margin:'4px 0' }}>{titleEmoji}</div>
+        <div style={{ width:40, height:2, background:'linear-gradient(90deg,#dc2626,#f97316)', margin:'8px auto 0', borderRadius:2 }} />
+      </div>
+      {sections.map((s: Section) => (
+        <div key={s.id}>
+          <div style={{ display:'flex', alignItems:'center', gap:8, margin:'12px 0 6px' }}>
+            <div style={{ flex:1, height:1, background:'#e5e7eb' }} />
+            <div style={{ fontSize:10, color:'#9ca3af', letterSpacing:2, textTransform:'uppercase', fontFamily:'sans-serif' }}>{s.emoji}</div>
+            <div style={{ flex:1, height:1, background:'#e5e7eb' }} />
+          </div>
+          <div style={{ textAlign:'center', background:(s.type==='datetime'||s.type==='venue') ? '#f9fafb' : 'transparent', borderRadius:8, padding:(s.type==='datetime'||s.type==='venue') ? '10px 12px' : '2px 0' }}>
+            {s.lines.map((line: string, li: number) => (
+              <div key={li} style={{ fontSize: li===0 ? (s.type==='header'?22:s.type==='names'?20:15) : 13, fontWeight: li===0 ? '700':'400', fontStyle: s.type==='names'&&li===0 ? 'italic':'normal', color: s.type==='header'&&li===0 ? '#dc2626' : 'inherit', lineHeight:1.5 }}>{line}</div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div style={{ textAlign:'center', marginTop:16 }}>
+        <div style={{ width:40, height:2, background:'linear-gradient(90deg,#dc2626,#f97316)', margin:'0 auto 8px', borderRadius:2 }} />
+        <div style={{ fontSize:11, color:'#9ca3af', letterSpacing:1 }}>— {hostName} —</div>
+      </div>
+    </div>
+  </div>
+);
+
+const FestiveCard = ({ sections, hostName, titleEmoji, bgColor, textColor }: any) => (
+  <div style={{
+    width: 320, minHeight: 500,
+    background: bgColor || 'linear-gradient(160deg,#7c2d12,#c2410c,#ea580c,#f97316)',
+    borderRadius: 20, color: textColor || 'white',
+    fontFamily: "'Playfair Display', Georgia, serif",
+    boxShadow: '0 25px 60px rgba(0,0,0,0.35)',
+    position: 'relative', overflow: 'hidden',
+  }}>
+    {/* Diya pattern */}
+    <div style={{ position:'absolute', top:10, left:10, fontSize:28, opacity:0.12, pointerEvents:'none' }}>🪔</div>
+    <div style={{ position:'absolute', top:10, right:10, fontSize:28, opacity:0.12, pointerEvents:'none' }}>🪔</div>
+    <div style={{ position:'absolute', bottom:10, left:10, fontSize:28, opacity:0.12, pointerEvents:'none' }}>🪔</div>
+    <div style={{ position:'absolute', bottom:10, right:10, fontSize:28, opacity:0.12, pointerEvents:'none' }}>🪔</div>
+    {/* Zigzag top border */}
+    <svg style={{ position:'absolute', top:0, left:0, right:0, width:'100%' }} height="16" viewBox="0 0 320 16" preserveAspectRatio="none">
+      <polyline points="0,0 16,16 32,0 48,16 64,0 80,16 96,0 112,16 128,0 144,16 160,0 176,16 192,0 208,16 224,0 240,16 256,0 272,16 288,0 304,16 320,0" fill="rgba(255,255,255,0.15)" />
+    </svg>
+    <div style={{ position:'absolute', inset:14, border:'1.5px solid rgba(255,255,255,0.25)', borderRadius:14, pointerEvents:'none' }} />
+
+    <div style={{ padding:'32px 26px 28px', position:'relative', zIndex:1 }}>
+      <div style={{ textAlign:'center', marginBottom:8 }}>
+        <div style={{ fontSize:10, letterSpacing:8, opacity:0.6 }}>🌟 🌟 🌟</div>
+        <div style={{ fontSize:40, margin:'6px 0' }}>{titleEmoji}</div>
+      </div>
+      {sections.map((s: Section) => (
+        <div key={s.id}>
+          <div style={{ textAlign:'center', margin:'8px 0', opacity:0.6, fontSize:13 }}>~ ✦ ~</div>
+          <div style={{ textAlign:'center', background:(s.type==='datetime'||s.type==='venue') ? 'rgba(255,255,255,0.12)' : 'transparent', borderRadius:10, padding:(s.type==='datetime'||s.type==='venue') ? '10px 12px' : '2px 0', border:(s.type==='datetime'||s.type==='venue') ? '1px solid rgba(255,255,255,0.2)' : 'none' }}>
+            {s.lines.map((line: string, li: number) => (
+              <div key={li} style={{ fontSize: li===0 ? (s.type==='header'?24:s.type==='names'?21:15) : 13, fontWeight: li===0 ? '700':'400', lineHeight:1.5 }}>{line}</div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div style={{ textAlign:'center', marginTop:14 }}>
+        <div style={{ fontSize:13, opacity:0.5, marginBottom:4 }}>🌟 🌟 🌟</div>
+        <div style={{ fontSize:11, opacity:0.65, fontStyle:'italic' }}>— {hostName} —</div>
+      </div>
+    </div>
+  </div>
+);
+
+const DarkCard = ({ sections, hostName, titleEmoji, bgColor, textColor }: any) => (
+  <div style={{
+    width: 320, minHeight: 500,
+    background: bgColor || 'linear-gradient(160deg,#050505,#0f0f1a,#1a1a2e)',
+    borderRadius: 20, color: textColor || '#e2c97e',
+    fontFamily: "'Cormorant Garamond', Georgia, serif",
+    boxShadow: '0 25px 60px rgba(0,0,0,0.7)',
+    position: 'relative', overflow: 'hidden',
+  }}>
+    {/* Gold dots pattern */}
+    {[...Array(12)].map((_,i) => (
+      <div key={i} style={{ position:'absolute', width:2, height:2, borderRadius:'50%', background:'#e2c97e', opacity:0.2, top:`${10+i*8}%`, left:`${5+i*8}%`, pointerEvents:'none' }} />
+    ))}
+    <div style={{ position:'absolute', inset:12, border:'1px solid rgba(226,201,126,0.3)', borderRadius:14, pointerEvents:'none' }} />
+    <div style={{ position:'absolute', inset:18, border:'1px solid rgba(226,201,126,0.1)', borderRadius:10, pointerEvents:'none' }} />
+    {/* Gold top/bottom lines */}
+    <div style={{ position:'absolute', top:0, left:'20%', right:'20%', height:2, background:'linear-gradient(90deg,transparent,#e2c97e,transparent)', pointerEvents:'none' }} />
+    <div style={{ position:'absolute', bottom:0, left:'20%', right:'20%', height:2, background:'linear-gradient(90deg,transparent,#e2c97e,transparent)', pointerEvents:'none' }} />
+
+    <div style={{ padding:'32px 26px 28px', position:'relative', zIndex:1 }}>
+      <div style={{ textAlign:'center', marginBottom:10 }}>
+        <div style={{ fontSize:9, letterSpacing:12, opacity:0.5, color:'#e2c97e' }}>✦ ✦ ✦</div>
+        <div style={{ fontSize:36, margin:'8px 0', filter:'sepia(1) saturate(2)' }}>{titleEmoji}</div>
+        <div style={{ fontSize:9, letterSpacing:12, opacity:0.5, color:'#e2c97e' }}>✦ ✦ ✦</div>
+      </div>
+      {sections.map((s: Section) => (
+        <div key={s.id}>
+          <div style={{ textAlign:'center', margin:'10px 0 6px', color:'#e2c97e', opacity:0.5, fontSize:16, letterSpacing:4 }}>— ✦ —</div>
+          <div style={{ textAlign:'center', background:(s.type==='datetime'||s.type==='venue') ? 'rgba(226,201,126,0.06)' : 'transparent', borderRadius:8, padding:(s.type==='datetime'||s.type==='venue') ? '10px 12px' : '2px 0', border:(s.type==='datetime'||s.type==='venue') ? '1px solid rgba(226,201,126,0.2)' : 'none' }}>
+            {s.lines.map((line: string, li: number) => (
+              <div key={li} style={{ fontSize: li===0 ? (s.type==='header'?25:s.type==='names'?22:16) : 14, fontWeight: li===0 ? '600':'400', fontStyle: s.type==='names' ? 'italic':'normal', lineHeight:1.6, letterSpacing: s.type==='header'&&li===0 ? 3:0.5 }}>{line}</div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div style={{ textAlign:'center', marginTop:16 }}>
+        <div style={{ color:'#e2c97e', opacity:0.4, fontSize:18, marginBottom:6 }}>❦</div>
+        <div style={{ fontSize:11, opacity:0.5, letterSpacing:2 }}>— {hostName} —</div>
+      </div>
+    </div>
+  </div>
+);
+
+const PastelCard = ({ sections, hostName, titleEmoji, bgColor, textColor }: any) => (
+  <div style={{
+    width: 320, minHeight: 500,
+    background: bgColor || 'linear-gradient(160deg,#f0fdf4,#dcfce7,#bbf7d0)',
+    borderRadius: 20, color: textColor || '#14532d',
+    fontFamily: "'Playfair Display', Georgia, serif",
+    boxShadow: '0 15px 40px rgba(0,0,0,0.12)',
+    position: 'relative', overflow: 'hidden',
+    border: '1px solid #bbf7d0',
+  }}>
+    {/* Leaf corners */}
+    {[{top:0,left:0},{top:0,right:0,transform:'scaleX(-1)'},{bottom:0,left:0,transform:'scaleY(-1)'},{bottom:0,right:0,transform:'scale(-1)'}].map((pos,i) => (
+      <div key={i} style={{ position:'absolute', fontSize:28, opacity:0.15, pointerEvents:'none', ...pos }}>🌿</div>
+    ))}
+    <div style={{ position:'absolute', inset:14, border:'1px solid rgba(20,83,45,0.15)', borderRadius:14, pointerEvents:'none' }} />
+
+    <div style={{ padding:'28px 26px', position:'relative', zIndex:1 }}>
+      <div style={{ textAlign:'center', marginBottom:8 }}>
+        <div style={{ fontSize:10, letterSpacing:8, opacity:0.4, color:'#16a34a' }}>✿ ✿ ✿</div>
+        <div style={{ fontSize:36, margin:'6px 0' }}>{titleEmoji}</div>
+      </div>
+      {sections.map((s: Section) => (
+        <div key={s.id}>
+          <div style={{ display:'flex', alignItems:'center', gap:6, margin:'10px 0 6px' }}>
+            <div style={{ flex:1, height:1, background:'rgba(20,83,45,0.15)' }} />
+            <div style={{ fontSize:12, color:'#16a34a', opacity:0.6 }}>✿</div>
+            <div style={{ flex:1, height:1, background:'rgba(20,83,45,0.15)' }} />
+          </div>
+          <div style={{ textAlign:'center', background:(s.type==='datetime'||s.type==='venue') ? 'rgba(20,83,45,0.06)' : 'transparent', borderRadius:10, padding:(s.type==='datetime'||s.type==='venue') ? '10px 12px' : '2px 0', border:(s.type==='datetime'||s.type==='venue') ? '1px solid rgba(20,83,45,0.12)' : 'none' }}>
+            {s.lines.map((line: string, li: number) => (
+              <div key={li} style={{ fontSize: li===0 ? (s.type==='header'?22:s.type==='names'?20:15) : 13, fontWeight: li===0 ? '700':'400', fontStyle: s.type==='names'&&li===0 ? 'italic':'normal', color: s.type==='header'&&li===0 ? '#15803d' : 'inherit', lineHeight:1.5 }}>{line}</div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div style={{ textAlign:'center', marginTop:14 }}>
+        <div style={{ fontSize:12, color:'#16a34a', opacity:0.4, marginBottom:4 }}>✿ ✿ ✿</div>
+        <div style={{ fontSize:11, opacity:0.5, fontStyle:'italic' }}>— {hostName} —</div>
+      </div>
+    </div>
+  </div>
+);
+
+// ── Main Card Switcher ─────────────────────────────────────────────────────
+const InvitationCard = forwardRef<HTMLDivElement, Props>(
+  ({ hostName = 'Your Family', template, templateStyle, sections, bgColor, textColor }, ref) => {
+    const titleEmoji = TEMPLATE_DEFAULTS[template].titleEmoji;
+    const props = { sections, hostName, titleEmoji, bgColor, textColor };
+
+    const CardMap: Record<TemplateStyle, JSX.Element> = {
+      floral:  <FloralCard  {...props} />,
+      royal:   <RoyalCard   {...props} />,
+      minimal: <MinimalCard {...props} />,
+      festive: <FestiveCard {...props} />,
+      dark:    <DarkCard    {...props} />,
+      pastel:  <PastelCard  {...props} />,
+    };
+
+    return <div ref={ref}>{CardMap[templateStyle]}</div>;
+  }
+);
+
+InvitationCard.displayName = 'InvitationCard';
+export default InvitationCard;
