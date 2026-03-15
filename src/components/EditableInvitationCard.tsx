@@ -49,7 +49,7 @@ const FloralCard = ({ sections, hostName, titleEmoji, bgColor, textColor }: any)
     <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
     <div style={{ position: 'absolute', bottom: -30, left: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
     {/* Petal corners */}
-    {[{t:0,l:0,tr:'none'},{t:0,r:0,tr:'scaleX(-1)'},{b:0,l:0,tr:'scaleY(-1)'},{b:0,r:0,tr:'scale(-1)'}].map((pos) => (
+    {[{t:0,l:0,tr:'none'},{t:0,r:0,tr:'scaleX(-1)'},{b:0,l:0,tr:'scaleY(-1)'},{b:0,r:0,tr:'scale(-1)'}].map((pos, i) => (
       <svg key={i} width={60} height={60} viewBox="0 0 60 60" style={{ position:'absolute', opacity:0.3, ...pos, transform: (pos as any).tr }} fill="none">
         <path d="M5 5 Q5 30 30 30 Q5 30 5 55" stroke="white" strokeWidth="1.5" />
         <path d="M5 5 Q30 5 30 30 Q30 5 55 5" stroke="white" strokeWidth="1.5" />
@@ -64,7 +64,7 @@ const FloralCard = ({ sections, hostName, titleEmoji, bgColor, textColor }: any)
         <div style={{ fontSize:10, letterSpacing:10, opacity:0.5 }}>✦ ✦ ✦</div>
         <div style={{ fontSize:38, margin:'8px 0' }}>{titleEmoji}</div>
       </div>
-      {sections.map((s: Section, i: number) => (
+      {sections.map((s: Section) => (
         <div key={s.id}>
           <div style={{ textAlign:'center', margin:'8px 0', opacity:0.5, fontSize:12, letterSpacing:5 }}>◆ ◇ ◆</div>
           <div style={{ textAlign:'center', background: (s.type==='datetime'||s.type==='venue') ? 'rgba(255,255,255,0.12)' : 'transparent', borderRadius:10, padding:(s.type==='datetime'||s.type==='venue') ? '10px 12px' : '2px 0', border:(s.type==='datetime'||s.type==='venue') ? '1px solid rgba(255,255,255,0.2)' : 'none' }}>
