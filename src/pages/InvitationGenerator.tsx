@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import AppLayout from '../layouts/AppLayout';
 import InvitationCard from '../components/EditableInvitationCard';
@@ -11,7 +11,7 @@ import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSe
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import html2canvas from 'html2canvas';
 import { CSS } from '@dnd-kit/utilities';
-
+import { useLocation } from "react-router-dom";
 interface EventData {
   id: number;
   name: string;
@@ -149,7 +149,7 @@ const ColorDot = ({ bg, selected, onClick, isInput, onInputChange }: { bg: strin
 
 // ── Main Page ──────────────────────────────────────────────────────────────
 const InvitationGenerator = () => {
-  const { eventId } = useParams();
+  // const { eventId } = useParams();
   const navigate = useNavigate();
   const { Get } = useApi();
   const cardRef = useRef<HTMLDivElement>(null);
@@ -164,8 +164,15 @@ const InvitationGenerator = () => {
   const [bgColor, setBgColor] = useState('');
   const [textColor, setTextColor] = useState('');
   const [activeTab, setActiveTab] = useState<'preview' | 'edit' | 'style'>('preview');
-
-  useEffect(() => { if (eventId) fetchEventData(); }, [eventId]);
+const location = useLocation();
+const eventId = location.state?.eventId;
+ useEffect(() => {
+  if (!eventId) {
+    navigate("/events");
+    return;
+  }
+  fetchEventData();
+}, [eventId]);
 
   const fetchEventData = async () => {
     try {
