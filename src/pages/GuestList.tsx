@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import useApi from "../hooks/useApi";
 import { confirmDelete } from "../utils/sweetAlert";
 import SearchInput from "../components/ui/SearchInput";
-import { FaSearch, FaEdit, FaTrash, FaUser, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
+import { FaSearch, FaEdit, FaTrash, FaUser, FaMapMarkerAlt } from "react-icons/fa";
 
 interface Guest {
   id: string;
@@ -190,7 +190,7 @@ const GuestList = ({ onSelectGuest }: GuestListProps) => {
                   <div className="d-flex align-items-center text-muted small">
                     <FaMapMarkerAlt className="me-1" size={12} />
                     <span className="me-3">{guest.city}</span>
-                    <FaPhone className="me-1" size={12} />
+                    {/* <FaPhone className="me-1" size={12} /> */}
                     <span>{guest.mobile_no}</span>
                   </div>
                 </div>
