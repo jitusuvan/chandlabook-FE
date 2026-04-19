@@ -45,7 +45,6 @@ const SplashScreen = ({ onComplete, duration = 3000 }: SplashScreenProps) => {
                 width: "62px",
                 height: "62px",
                 objectFit: "contain",
-                animation: "spinLogo 2.2s linear infinite",
               }}
             />
           </div>
@@ -65,17 +64,8 @@ const SplashScreen = ({ onComplete, duration = 3000 }: SplashScreenProps) => {
           Manage your events & contributions
         </p>
 
-        {/* <div className="spinner-border text-white" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div> */}
-
         <style>
           {`
-            @keyframes spinLogo {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-
             @keyframes pulseZoom {
               0% { transform: scale(1); }
               50% { transform: scale(1.12); }
