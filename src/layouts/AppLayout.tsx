@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect,useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import AuthContext from "../contexts/AuthContext";
-
+import logoImg from "../assets/image/cb7.png";
 import useApi from "../hooks/useApi";
 type AppLayoutProps = {
   title: string;
@@ -20,14 +20,21 @@ interface User {
   first_name: string;
   last_name: string;
 }
-const AppLayout = ({ title, subtitle, showBack, showProfile, summaryCards, children, onBackClick }: AppLayoutProps) => {
+const AppLayout = ({
+  title,
+  subtitle,
+  showBack,
+  showProfile,
+  summaryCards,
+  children,
+  onBackClick,
+}: AppLayoutProps) => {
   const navigate = useNavigate();
-  
+
   const { Get } = useApi();
-    const { user, } = useContext(AuthContext);
-    const [, setLoading] = useState(true);
-const [userData, setUserData] = useState<User | null>(null);
- 
+  const { user } = useContext(AuthContext);
+  const [, setLoading] = useState(true);
+  const [userData, setUserData] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -49,25 +56,24 @@ const [userData, setUserData] = useState<User | null>(null);
     <div className="vh-100 bg-light d-flex justify-content-center p-0">
       <div
         className="w-100 bg-white shadow-sm d-flex flex-column"
-        style={{ 
-          maxWidth: "100%", 
-          borderRadius: "0", 
-          overflow: "hidden"
+        style={{
+          maxWidth: "100%",
+          borderRadius: "0",
+          overflow: "hidden",
         }}
       >
         {/* HEADER */}
         <div
           className="bg-white text-black position-relative d-flex flex-column justify-content-center shadow-sm flex-shrink-0"
-          style={{ 
+          style={{
             padding: "16px 0",
-            minHeight: "60px"
+            minHeight: "60px",
           }}
         >
-          
-          {showBack && (
+          {showBack ? (
             <div
               className="position-absolute start-0 top-50 translate-middle-y ms-3"
-              onClick={() => onBackClick ? onBackClick() : navigate(-1)}
+              onClick={() => (onBackClick ? onBackClick() : navigate(-1))}
               style={{
                 width: "32px",
                 height: "32px",
@@ -80,7 +86,7 @@ const [userData, setUserData] = useState<User | null>(null);
                 fontSize: "18px",
                 fontWeight: "bold",
                 transition: "all 0.2s ease",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = "rgba(0, 0, 0, 0.2)";
@@ -93,6 +99,20 @@ const [userData, setUserData] = useState<User | null>(null);
             >
               ←
             </div>
+          ) : (
+            title === "ChandlaBook" && (
+              <div className="position-absolute start-0 top-50 translate-middle-y ms-3">
+                <img
+                  src={logoImg}
+                  alt="logo"
+                  style={{
+                    width: "55px",
+                    height: "55px",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+            )
           )}
 
           {/* ✅ PROFILE ICON (only if showProfile=true) */}
@@ -113,15 +133,17 @@ const [userData, setUserData] = useState<User | null>(null);
                 fontWeight: "bold",
                 cursor: "pointer",
                 transition: "all 0.2s ease",
-                boxShadow: "0 2px 8px rgba(220, 53, 69, 0.3)"
+                boxShadow: "0 2px 8px rgba(220, 53, 69, 0.3)",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "scale(1.1)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(220, 53, 69, 0.4)";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(220, 53, 69, 0.4)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.boxShadow = "0 2px 8px rgba(220, 53, 69, 0.3)";
+                e.currentTarget.style.boxShadow =
+                  "0 2px 8px rgba(220, 53, 69, 0.3)";
               }}
             >
               {userData?.first_name?.charAt(0)?.toUpperCase() || "U"}
@@ -129,15 +151,11 @@ const [userData, setUserData] = useState<User | null>(null);
           )}
 
           <div className="text-center px-3">
-          <h4 className="fw-semibold mb-1 fs-6">{title}</h4>
+            <h4 className="fw-semibold mb-1 fs-6">{title}</h4>
             {subtitle && <p className="text-white-30 mb-0 small">{subtitle}</p>}
           </div>
-          
-          {summaryCards && (
-            <div className="px-3">
-              {summaryCards}
-            </div>
-          )}
+
+          {summaryCards && <div className="px-3">{summaryCards}</div>}
         </div>
 
         {/* SCROLLABLE CONTENT */}

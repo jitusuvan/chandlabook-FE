@@ -8,6 +8,7 @@ import { validateForm, commonRules } from "../utils/validation";
 import type { ValidationErrors } from "../utils/validation";
 import FormInput from "../components/ui/FormInput";
 import headerImg from "../assets/image/hederimage.png";
+import logoImg from "../assets/image/cb7.png";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -61,6 +62,18 @@ const Signup = () => {
       <div className="d-block d-md-none w-100 bg-white">
         <div className="p-3">
           <div className="text-center mb-4">
+             <img
+              src={logoImg}
+              alt="Logo"
+              className="img-fluid mb-3"
+              style={{
+                width: "130px",
+                height: "130px",
+                objectFit: "contain",
+                display: "block",
+                margin: "0 auto",
+              }}
+            />
             <h2 className="fw-bold mb-1">Create Account</h2>
             <p className="text-muted" style={{ fontSize: 14 }}>
               Join us to manage your events & contributions
@@ -172,6 +185,18 @@ const Signup = () => {
         <div className="col-md-6 col-lg-5 d-flex align-items-center justify-content-center bg-white">
           <div className="w-100 px-4" style={{ maxWidth: "350px" }}>
             <div className="text-center mb-3">
+               <img
+                src={logoImg}
+                alt="Logo"
+                className="img-fluid mb-3"
+                style={{
+                  width: "130px",
+                  height: "130px",
+                  objectFit: "contain",
+                  display: "block",
+                  margin: "0 auto",
+                }}
+              />
               <h4 className="fw-bold mb-1">Create Account</h4>
               <p className="text-muted small">
                 Join us to manage your events & contributions

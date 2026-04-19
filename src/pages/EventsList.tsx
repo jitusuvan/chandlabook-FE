@@ -272,8 +272,7 @@ const EventsList = () => {
               className="card border-0 shadow-sm rounded-4 mb-3"
               style={{ cursor: "pointer" }}
               onClick={() => {
-                // You can add navigation to event details page here
-                console.log("Event clicked:", event);
+               
               }}
             >
               <div className="card-body p-3">

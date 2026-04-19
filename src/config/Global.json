@@ -21,6 +21,7 @@
     "dashboard":"/api/v1/dashboard/",
     "expense":"/api/v1/expense/",
     "today":"/api/v1/guestRecord/today/",
-    "upcoming":"/api/v1/guestRecord/upcoming/"
+    "upcoming":"/api/v1/guestRecord/upcoming/",
+    "bulkImportRecord":"/api/v1/bulkImportRecord/"
   }
 }

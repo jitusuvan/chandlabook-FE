@@ -7,7 +7,7 @@ import type { ValidationErrors } from "../utils/validation";
 import toast from "react-hot-toast";
 import headerImg from "../assets/image/hederimage.png";
 import FormInput from "../components/ui/FormInput";
-
+import logoImg from "../assets/image/cb7.png";
 const Login = () => {
   const { loginUser, loading } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -24,27 +24,31 @@ const Login = () => {
         required: true,
         maxLength: 50,
         custom: (value: string) => {
-          const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+          const emailPattern =
+            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
           const phonePattern = /^[0-9]{10,15}$/;
           if (!emailPattern.test(value) && !phonePattern.test(value)) {
-            return 'Enter valid email or phone number';
+            return "Enter valid email or phone number";
           }
           return null;
-        }
+        },
       },
-      password: { 
-        required: true, 
-        minLength: 8, 
+      password: {
+        required: true,
+        minLength: 8,
         maxLength: 30,
         custom: (value: string) => {
-          if (value.length < 8) return 'Password must be at least 8 characters';
-          if (!/(?=.*[A-Z])/.test(value)) return 'Must contain at least 1 uppercase letter';
-          if (!/(?=.*[a-z])/.test(value)) return 'Must contain at least 1 lowercase letter';
-          if (!/(?=.*\d)/.test(value)) return 'Must contain at least 1 number';
-          if (!/(?=.*[@$!%*?&#])/.test(value)) return 'Must contain at least 1 special character (@$!%*?&#)';
+          if (value.length < 8) return "Password must be at least 8 characters";
+          if (!/(?=.*[A-Z])/.test(value))
+            return "Must contain at least 1 uppercase letter";
+          if (!/(?=.*[a-z])/.test(value))
+            return "Must contain at least 1 lowercase letter";
+          if (!/(?=.*\d)/.test(value)) return "Must contain at least 1 number";
+          if (!/(?=.*[@$!%*?&#])/.test(value))
+            return "Must contain at least 1 special character (@$!%*?&#)";
           return null;
-        }
-      }
+        },
+      },
     };
 
     const validationErrors = validateForm(formData, validationRules);
@@ -63,7 +67,7 @@ const Login = () => {
       {/* Mobile Layout */}
       <div className="d-block d-md-none w-100 bg-white">
         <div className="p-3">
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <img
               src={headerImg}
               alt="login header"
@@ -74,8 +78,20 @@ const Login = () => {
                 borderRadius: "0 0 20px 20px",
               }}
             />
-          </div>
+          </div> */}
           <div className="text-center mb-4">
+            <img
+              src={logoImg}
+              alt="Logo"
+              className="img-fluid mb-3"
+              style={{
+                width: "130px",
+                height: "130px",
+                objectFit: "contain",
+                display: "block",
+                margin: "0 auto",
+              }}
+            />
             <h2 className="fw-bold mb-1">Welcome back</h2>
             <p className="text-muted" style={{ fontSize: 14 }}>
               Login to continue managing your records
@@ -97,7 +113,7 @@ const Login = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
-                  className={`form-control form-control-lg pe-5 ${errors.password ? 'is-invalid' : ''}`}
+                  className={`form-control form-control-lg pe-5 ${errors.password ? "is-invalid" : ""}`}
                   placeholder="Enter your password"
                   maxLength={30}
                   required
@@ -107,14 +123,20 @@ const Login = () => {
                   className="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0 bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                  <i
+                    className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}
+                  ></i>
                 </button>
               </div>
-              {errors.password && <div className="invalid-feedback d-block">{errors.password}</div>}
+              {errors.password && (
+                <div className="invalid-feedback d-block">
+                  {errors.password}
+                </div>
+              )}
             </div>
 
             <div className="text-end text-danger mb-3">
-              <small 
+              <small
                 style={{ cursor: "pointer" }}
                 onClick={() => navigate("/forgot-password")}
               >
@@ -134,8 +156,8 @@ const Login = () => {
           <div className="text-center">
             <small className="text-muted">
               Don't have an account?{" "}
-              <span 
-                className="text-danger" 
+              <span
+                className="text-danger"
                 style={{ cursor: "pointer", textDecoration: "underline" }}
                 onClick={() => navigate("/signup")}
               >
@@ -155,10 +177,16 @@ const Login = () => {
               src={headerImg}
               alt="ChandlaBook"
               className="img-fluid rounded-4 shadow-lg"
-              style={{ maxWidth: "400px", maxHeight: "500px", objectFit: "cover" }}
+              style={{
+                maxWidth: "400px",
+                maxHeight: "500px",
+                objectFit: "cover",
+              }}
             />
             <h3 className="fw-bold mt-4 text-danger">ChandlaBook</h3>
-            <p className="text-muted">Manage your events & contributions with ease</p>
+            <p className="text-muted">
+              Manage your events & contributions with ease
+            </p>
           </div>
         </div>
 
@@ -166,6 +194,18 @@ const Login = () => {
         <div className="col-md-6 col-lg-5 d-flex align-items-center justify-content-center bg-white">
           <div className="w-100 px-4" style={{ maxWidth: "350px" }}>
             <div className="text-center mb-3">
+              <img
+                src={logoImg}
+                alt="Logo"
+                className="img-fluid mb-3"
+                style={{
+                  width: "130px",
+                  height: "130px",
+                  objectFit: "contain",
+                  display: "block",
+                  margin: "0 auto",
+                }}
+              />
               <h4 className="fw-bold mb-1">Welcome back</h4>
               <p className="text-muted small">
                 Login to continue managing your records
@@ -179,10 +219,12 @@ const Login = () => {
                   name="username"
                   placeholder="Enter your email or phone"
                   maxLength={50}
-                  className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+                  className={`form-control ${errors.username ? "is-invalid" : ""}`}
                   required
                 />
-                {errors.username && <div className="invalid-feedback">{errors.username}</div>}
+                {errors.username && (
+                  <div className="invalid-feedback">{errors.username}</div>
+                )}
               </div>
 
               <div className="mb-2">
@@ -191,7 +233,7 @@ const Login = () => {
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
-                    className={`form-control pe-5 ${errors.password ? 'is-invalid' : ''}`}
+                    className={`form-control pe-5 ${errors.password ? "is-invalid" : ""}`}
                     placeholder="Enter your password"
                     maxLength={30}
                     required
@@ -201,15 +243,21 @@ const Login = () => {
                     className="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0 bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                    <i
+                      className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}
+                    ></i>
                   </button>
                 </div>
-                {errors.password && <div className="invalid-feedback d-block">{errors.password}</div>}
+                {errors.password && (
+                  <div className="invalid-feedback d-block">
+                    {errors.password}
+                  </div>
+                )}
               </div>
 
               <div className="text-end mb-3">
-                <small 
-                  className="text-danger" 
+                <small
+                  className="text-danger"
                   style={{ cursor: "pointer" }}
                   onClick={() => navigate("/forgot-password")}
                 >
@@ -229,8 +277,8 @@ const Login = () => {
             <div className="text-center">
               <small className="text-muted">
                 Don't have an account?{" "}
-                <span 
-                  className="text-danger" 
+                <span
+                  className="text-danger"
                   style={{ cursor: "pointer", textDecoration: "underline" }}
                   onClick={() => navigate("/signup")}
                 >

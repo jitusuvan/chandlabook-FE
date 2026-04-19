@@ -65,10 +65,7 @@ const [summary, setSummary] = useState<DashboardSummary>({
     setLoading(true);
     const response = await Get("dashboard");
     //  DEBUG
-    console.log("Dashboard summary response 👉", response);
-    console.log("Response data 👉", response?.data);
-    console.log("Total guests 👉", response?.data?.total_guests);
-
+  
     setSummary({
       total_events: response?.total_events || 0,
       total_guests: response?.total_guests || 0,
@@ -143,7 +140,7 @@ const loadMoreUpcoming = async () => {
 };
 
   return (
-    <AppLayout title="Dashboard" showProfile={true}>
+    <AppLayout title="ChandlaBook" showProfile={true}>
       
       {/* 🔴 SUMMARY CARD */}
       <div className="card border-0 shadow-sm mb-4 bg-danger text-white rounded-4">

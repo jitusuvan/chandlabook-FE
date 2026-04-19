@@ -63,7 +63,7 @@ const ExpenseManager = () => {
   const fetchAllExpenses = async () => {
     try {
       const response = await Get("expense");
-      console.log("All Expenses API response:", response);
+     
 
       let expenseData = [];
       if (Array.isArray(response)) {
