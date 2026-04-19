@@ -1,1 +1,0 @@
-- [x] Edit src/layouts/AppLayout.tsx to add 'rounded-top-4' class to the red header div for top corner radius

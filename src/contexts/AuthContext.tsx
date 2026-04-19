@@ -247,17 +247,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               }
             }
           } else {
-            console.log("Token expired, attempting refresh...");
+           
             const refreshed = await refreshTokens(tokenData.refresh);
             if (!refreshed) {
-              console.log("Refresh failed");
-              // Clear all localStorage data when refresh fails
+              
               localStorage.clear();
               if (!isPublicRoute) {
                 logOutUser("Session expired.");
               }
             } else {
-              console.log("Token refreshed successfully");
+              
             }
           }
         } catch (error) {

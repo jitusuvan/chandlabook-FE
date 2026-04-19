@@ -1,5 +1,5 @@
-import React, { useState, useRef, } from "react";
-// import AuthContext from "../contexts/AuthContext";
+import React, { useState, useRef } from "react";
+
 import AppLayout from "../layouts/AppLayout";
 import useApi from "../hooks/useApi";
 import GuestList from "../pages/GuestList";
@@ -23,8 +23,7 @@ interface GuestSummary {
 
 const GuestHistory = () => {
   const { GetPaginatedData, Post } = useApi();
-  // const authCtx = useContext(AuthContext);
-  // const authToken = authCtx?.authToken;
+ 
 
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [summary, setSummary] = useState<GuestSummary | null>(null);
@@ -87,10 +86,8 @@ const GuestHistory = () => {
 
   // CSV Import Functions
 
-
   const importData = async () => {
-    // console.log("Selected File:", selectedFile);
-    // console.log("Auth Token:", authToken);
+   
 
     if (!selectedFile) {
       showStatus("No file selected", "error");
@@ -106,19 +103,23 @@ const GuestHistory = () => {
     try {
       const response = await Post("bulkImportRecord", formData);
       const result = response.data;
-      
+
       showStatus(
         `✅ Success: ${result.guests_created || 0} guests + ${result.records_created || 0} records created! Closing...`,
-        "success"
+        "success",
       );
-      
+
       // Auto close modal and refresh WITHOUT splashscreen
       setTimeout(() => {
         toggleImportModal();
         window.location.href = window.location.pathname; // Soft refresh - no splashscreen
       }, 2000);
     } catch (error: any) {
-      const errorMsg = error.response?.data?.error || error.response?.data?.detail || error.message || "Unknown error";
+      const errorMsg =
+        error.response?.data?.error ||
+        error.response?.data?.detail ||
+        error.message ||
+        "Unknown error";
       showStatus(`❌ Error: ${errorMsg}`, "error");
     }
   };
@@ -128,17 +129,13 @@ const GuestHistory = () => {
     setStatusType(type);
   };
 
-const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0] || null;
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
 
-  console.log("File selected:", file);
-
-  setSelectedFile(file);
-  // setCsvPreview([]);
-  setStatusMessage('');
-
- 
-};
+    setSelectedFile(file);
+  
+    setStatusMessage("");
+  };
 
   const toggleImportModal = () => {
     setShowImportModal(!showImportModal);
@@ -161,33 +158,51 @@ const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
       showBack
       onBackClick={handleBackClick}
     >
-      {!selectedGuest ? (
-        <div>
-          {/* Bulk Import Section */}
-          <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xl font-bold text-gray-900 flex items-center">
-                📥 Bulk Import CSV Guests
-              </h3>
-               <div className="flex gap-2">
-      <a
-        href="/sampleformat.csv"
-        download="sample.csv"
-        className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-semibold rounded-xl shadow-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200"
-      >
-        Download Sample
-      </a>
+   {!selectedGuest ? (
+  <div>
+    {/* Bulk Import Section */}
+    <div className="mb-4 p-3 p-md-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-4 border border-blue-100 shadow-sm">
+      <div className="row align-items-center g-3">
+        
+        {/* Title */}
+        <div className="col-12 col-lg">
+          <h6 className="fw-bold text-dark mb-0 d-flex align-items-center">
+            📥 Bulk Import CSV Guests
+          </h6>
+        </div>
 
-      <button
-        onClick={toggleImportModal}
-        className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200"
-      >
-        Import CSV
-      </button>
-    </div>
-            </div>
+        {/* Buttons */}
+        <div className="col-12 col-lg-auto">
+          <div className="d-flex flex-wrap gap-2 justify-content-lg-end">
+            <a
+              href="/sampleformat.csv"
+              download="sample.csv"
+              className="btn btn-sm text-white fw-semibold px-3 rounded-3"
+              style={{
+                background: "linear-gradient(135deg,#6c757d,#495057)",
+                fontSize: "13px",
+                minWidth: "140px",
+              }}
+            >
+              Download Sample
+            </a>
+
+            <button
+              onClick={toggleImportModal}
+              className="btn btn-sm text-white fw-semibold px-3 rounded-3"
+              style={{
+                background: "linear-gradient(135deg,#0d6efd,#084298)",
+                fontSize: "13px",
+                minWidth: "120px",
+              }}
+            >
+              Import CSV
+            </button>
           </div>
-
+        </div>
+        </div>
+        </div>
+              
           {/* Guest List */}
           <GuestList onSelectGuest={handleSelectGuest} />
         </div>
@@ -238,7 +253,6 @@ const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
                 </div>
 
                 {/* Preview Table */}
-              
 
                 {/* Status */}
                 {statusMessage && (
