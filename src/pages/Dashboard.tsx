@@ -143,7 +143,7 @@ const loadMoreUpcoming = async () => {
 };
 
   return (
-    <AppLayout title="Dashboard" showProfile={true}>
+    <AppLayout title="ChandlaBook" showProfile={true}>
       
       {/* 🔴 SUMMARY CARD */}
       <div className="card border-0 shadow-sm mb-4 bg-danger text-white rounded-4">
