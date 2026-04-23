@@ -23,7 +23,6 @@ interface GuestSummary {
 
 const GuestHistory = () => {
   const { GetPaginatedData, Post } = useApi();
- 
 
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [summary, setSummary] = useState<GuestSummary | null>(null);
@@ -87,8 +86,6 @@ const GuestHistory = () => {
   // CSV Import Functions
 
   const importData = async () => {
-   
-
     if (!selectedFile) {
       showStatus("No file selected", "error");
       return;
@@ -133,7 +130,7 @@ const GuestHistory = () => {
     const file = e.target.files?.[0] || null;
 
     setSelectedFile(file);
-  
+
     setStatusMessage("");
   };
 
@@ -158,51 +155,50 @@ const GuestHistory = () => {
       showBack
       onBackClick={handleBackClick}
     >
-   {!selectedGuest ? (
-  <div>
-    {/* Bulk Import Section */}
-    <div className="mb-4 p-3 p-md-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-4 border border-blue-100 shadow-sm">
-      <div className="row align-items-center g-3">
-        
-        {/* Title */}
-        <div className="col-12 col-lg">
-          <h6 className="fw-bold text-dark mb-0 d-flex align-items-center">
-            📥 Bulk Import CSV Guests
-          </h6>
-        </div>
+      {!selectedGuest ? (
+        <div>
+          {/* Bulk Import Section */}
+          <div className="mb-4 p-3 p-md-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-4 border border-blue-100 shadow-sm">
+            <div className="row align-items-center g-3">
+              {/* Title */}
+              <div className="col-12 col-lg">
+                <h6 className="fw-bold text-dark mb-0 d-flex align-items-center">
+                  📥 Bulk Import CSV Guests
+                </h6>
+              </div>
 
-        {/* Buttons */}
-        <div className="col-12 col-lg-auto">
-          <div className="d-flex flex-wrap gap-2 justify-content-lg-end">
-            <a
-              href="/sampleformat.csv"
-              download="sample.csv"
-              className="btn btn-sm text-white fw-semibold px-3 rounded-3"
-              style={{
-                background: "linear-gradient(135deg,#6c757d,#495057)",
-                fontSize: "13px",
-                minWidth: "140px",
-              }}
-            >
-              Download Sample
-            </a>
+              {/* Buttons */}
+              <div className="col-12 col-lg-auto">
+                <div className="d-flex flex-wrap gap-2 justify-content-lg-end">
+                  <a
+                    href="/sampleformat.xlsx"
+                    download="sample.xlsx"
+                    className="btn btn-sm text-white fw-semibold px-3 rounded-3"
+                    style={{
+                      background: "linear-gradient(135deg,#6c757d,#495057)",
+                      fontSize: "13px",
+                      minWidth: "140px",
+                    }}
+                  >
+                    Download Sample
+                  </a>
 
-            <button
-              onClick={toggleImportModal}
-              className="btn btn-sm text-white fw-semibold px-3 rounded-3"
-              style={{
-                background: "linear-gradient(135deg,#0d6efd,#084298)",
-                fontSize: "13px",
-                minWidth: "120px",
-              }}
-            >
-              Import CSV
-            </button>
+                  <button
+                    onClick={toggleImportModal}
+                    className="btn btn-sm text-white fw-semibold px-3 rounded-3"
+                    style={{
+                      background: "linear-gradient(135deg,#0d6efd,#084298)",
+                      fontSize: "13px",
+                      minWidth: "120px",
+                    }}
+                  >
+                    Import CSV
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        </div>
-        </div>
-              
+
           {/* Guest List */}
           <GuestList onSelectGuest={handleSelectGuest} />
         </div>
@@ -240,7 +236,7 @@ const GuestHistory = () => {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".csv"
+                    accept=".xlsx"
                     onChange={handleFileSelect}
                     className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-all duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
