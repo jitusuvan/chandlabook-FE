@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useContext } from "react";
+import { useContext } from "react";
 import AuthContext from "../contexts/AuthContext";
 import logoImg from "../assets/image/cb7.png";
-import useApi from "../hooks/useApi";
+
 type AppLayoutProps = {
   title: string;
   subtitle?: string;
@@ -20,6 +20,7 @@ interface User {
   first_name: string;
   last_name: string;
 }
+
 const AppLayout = ({
   title,
   subtitle,
@@ -30,28 +31,8 @@ const AppLayout = ({
   onBackClick,
 }: AppLayoutProps) => {
   const navigate = useNavigate();
-
-  const { Get } = useApi();
   const { user } = useContext(AuthContext);
-  const [, setLoading] = useState(true);
-  const [userData, setUserData] = useState<User | null>(null);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const data = await Get("userProfile", user?.user_id);
-        setUserData(data);
-      } catch (error) {
-        console.error("Failed to fetch user data", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (user?.user_id) {
-      fetchUserData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   return (
     <div className="vh-100 bg-light d-flex justify-content-center p-0">
       <div
@@ -146,7 +127,7 @@ const AppLayout = ({
                   "0 2px 8px rgba(220, 53, 69, 0.3)";
               }}
             >
-              {userData?.first_name?.charAt(0)?.toUpperCase() || "U"}
+              {user?.first_name?.charAt(0)?.toUpperCase() || "U"}
             </div>
           )}
 

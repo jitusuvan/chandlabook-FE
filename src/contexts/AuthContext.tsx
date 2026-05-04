@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     global.api.host + global.api[API_NAME as keyof typeof global.api];
 
   const [authToken, setAuthToken] = useState<AuthToken | null>(null);
-  const [user, setUser] = useState<User>({});
+  const [user, setUser] = useState<User>({});  
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -206,6 +206,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Initialize auth ONCE on mount only
   useEffect(() => {
     const initializeAuth = async () => {
       const publicRoutes = [
@@ -225,7 +226,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const tokenData: AuthToken = JSON.parse(storedToken);
 
           if (!isTokenExpired(tokenData.access)) {
-            // Verify token with backend to ensure user still exists
             const isValidUser = await verifyTokenWithBackend(tokenData.access);
             
             if (isValidUser) {
@@ -237,7 +237,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               }
               setIsAuthenticated(true);
             } else {
-              // User account deleted or token invalid
               localStorage.clear();
               setAuthToken(null);
               setUser({});
@@ -247,32 +246,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               }
             }
           } else {
-           
             const refreshed = await refreshTokens(tokenData.refresh);
             if (!refreshed) {
-              
               localStorage.clear();
               if (!isPublicRoute) {
                 logOutUser("Session expired.");
               }
-            } else {
-              
             }
           }
         } catch (error) {
           console.error("Error parsing token:", error);
-          // Clear all localStorage data on token parsing error
           localStorage.clear();
           if (!isPublicRoute) {
             logOutUser();
           }
         }
       } else {
-        // No token found - ensure user is logged out
         setAuthToken(null);
         setUser({});
         setIsAuthenticated(false);
-        
         if (!isPublicRoute) {
           navigate("/login", { replace: true });
         }
@@ -282,7 +274,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     initializeAuth();
+  }, []); // Mount only!
 
+  // Separate token refresh interval (no route deps)
+  useEffect(() => {
     const interval = setInterval(async () => {
       const stored = localStorage.getItem("authToken");
       if (!stored) return;
@@ -307,7 +302,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [location.pathname]);
+  }, []); // Mount only
 
   return (
     <AuthContext.Provider
