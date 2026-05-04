@@ -13,13 +13,7 @@ type AppLayoutProps = {
   onBackClick?: () => void;
 };
 
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-}
+
 
 const AppLayout = ({
   title,
